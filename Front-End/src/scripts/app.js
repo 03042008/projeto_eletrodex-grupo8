@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initContrastToggle();
   initSidebar();
   initLoginForm();
+  initNotifications();
   markActiveNav();
 });
 
@@ -80,5 +81,54 @@ function initLoginForm() {
     // conforme o cargo retornado (Gerente, Coordenador,
     // Administrador, RH ou Operador de Estoque).
     window.location.href = 'dashboard.html';
+  });
+}
+
+/* ---------- notificações (popup) ---------- */
+function initNotifications() {
+  const notificationBtn = document.querySelector('.notification-btn');
+  const notificationsPanel = document.getElementById('notifications-panel');
+  const closeBtn = document.querySelector('.close-notifications-btn');
+
+  if (!notificationBtn || !notificationsPanel) return;
+
+  // Abrir/fechar o painel
+  notificationBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isVisible = notificationsPanel.classList.contains('visible');
+    notificationsPanel.classList.toggle('visible', !isVisible);
+    notificationBtn.setAttribute('aria-expanded', String(!isVisible));
+  });
+
+  // Fechar ao clicar no botão de close
+  closeBtn.addEventListener('click', () => {
+    notificationsPanel.classList.remove('visible');
+    notificationBtn.setAttribute('aria-expanded', 'false');
+  });
+
+  // Fechar ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.notifications-wrapper')) {
+      notificationsPanel.classList.remove('visible');
+      notificationBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Fechar ao pressionar Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && notificationsPanel.classList.contains('visible')) {
+      notificationsPanel.classList.remove('visible');
+      notificationBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Adicionar comportamento aos items de notificação
+  const notificationItems = document.querySelectorAll('.notification-item');
+  notificationItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Aqui você pode adicionar lógica para navegar para a página relevante
+      console.log('Notificação clicada:', item.querySelector('.notification-title').textContent);
+    });
   });
 }

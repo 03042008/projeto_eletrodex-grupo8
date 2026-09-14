@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eletrodex — Painel</title>
+<title>Eletrodex — Produtos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./src/styles/style.css">
 </head>
-<body data-page="painel">
+<body data-page="produtos">
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 
 <div class="app-shell">
@@ -19,14 +19,14 @@
 
     <p class="nav-group-label">Visão geral</p>
     <ul class="nav-list">
-      <li><a href="dashboard.html" class="active" data-page="painel"><span class="tick"></span>Painel</a></li>
-      <li><a href="./critico.html" data-page="critico"><span class="tick"></span>Crítico</a></li>
+      <li><a href="dashboard.html" data-page="painel"><span class="tick"></span>Painel</a></li>
+      <li><a href="critico.html" data-page="critico"><span class="tick"></span>Crítico</a></li>
       <li><a href="#" data-page="notificacoes"><span class="tick"></span>Notificações de estoque</a></li>
     </ul>
 
     <p class="nav-group-label">Estoque</p>
     <ul class="nav-list">
-      <li><a href="./produtos.html" data-page="produtos"><span class="tick"></span>Produtos</a></li>
+      <li><a href="produtos.html" data-page="produtos"><span class="tick"></span>Produtos</a></li>
       <li><a href="#" data-page="lotes"><span class="tick"></span>Lotes</a></li>
       <li><a href="#" data-page="movimentacao"><span class="tick"></span>Movimentação</a></li>
       <li><a href="#" data-page="entrada"><span class="tick"></span>Entrada de produtos</a></li>
@@ -60,15 +60,15 @@
       <div class="topbar-left">
         <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
         <div id="topo-site">
-          <h1>Painel geral</h1>
-          <p class="subtitle">Visão consolidada do estoque e das movimentações</p>
+          <h1>Produtos em Estoque</h1>
+          <p class="subtitle">Gestão completa do inventário de produtos</p>
         </div>
       </div>
 
       <div class="topbar-actions">
         <div class="search-wrap">
-          <span class="search-icon" aria-hidden="true">🔍</span>
-          <input type="search" class="search-input" placeholder="Buscar produto, lote ou funcionário..." aria-label="Buscar">
+          <span class="search-icon" aria-hidden="true">📦</span>
+          <input type="search" class="search-input" placeholder="Buscar por produto, SKU ou código..." aria-label="Buscar">
         </div>
         <div class="notifications-wrapper">
           <button class="icon-btn notification-btn" aria-label="Notificações de estoque crítico" aria-expanded="false" aria-controls="notifications-panel">
@@ -121,69 +121,66 @@
 
     <main class="app-content" id="conteudo">
       <div class="content-container">
-        <section class="kpi-grid" aria-label="Indicadores gerais">
-          <a href="./produtos.html" class="kpi-link">
-            <div class="card kpi-card">
-              <div class="kpi-label">Produtos em estoque</div>
-              <div class="kpi-value">248</div>
-            </div>
-          </a>
-          <a href="./critico.html" class="card kpi-card alert" aria-label="Ver produtos em nível crítico">
-            <div class="kpi-label">Crítico</div>
-            <div class="kpi-value">6</div>
-          </a>
-          <div class="card kpi-card">
-            <div class="kpi-label">Movimentações hoje</div>
-            <div class="kpi-value">14</div>
-          </div>
-          <div class="card kpi-card">
-            <div class="kpi-label">Pendências</div>
-            <div class="kpi-value">2</div>
-          </div>
-        </section>
 
-        <section class="card activity-card" aria-labelledby="mov-title">
+        <!-- SEÇÃO: PRODUTOS EM ESTOQUE -->
+        <section class="card" aria-labelledby="estoque-title">
           <div class="panel-header">
-            <h2 id="mov-title">Atividade recente</h2>
-            <a href="#" class="view-all-link">Ver todas →</a>
+            <h2 id="estoque-title">Produtos em Estoque</h2>
+            <a href="#" class="view-all-link">Adicionar produto +</a>
           </div>
 
           <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th scope="col" class="col-product">Produto</th>
-                  <th scope="col" class="col-lot">Lote</th>
-                  <th scope="col" class="col-sector">Setor</th>
-                  <th scope="col" class="col-user">Responsável</th>
-                  <th scope="col" class="col-status">Estado</th>
-                  <th scope="col" class="col-time">Horário</th>
+                  <th scope="col" class="col-produto">Produto</th>
+                  <th scope="col" class="col-sku">SKU</th>
+                  <th scope="col" class="col-quantidade">Quantidade</th>
+                  <th scope="col" class="col-localizacao">Localização</th>
+                  <th scope="col" class="col-status">Status</th>
+                  <th scope="col" class="col-acao">Ação</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td class="col-product"><strong>Micro-ondas Compact 20L</strong></td>
-                  <td class="id-cell col-lot">LT-0231</td>
-                  <td class="col-sector">Expedição</td>
-                  <td class="col-user">Letícia Caristo</td>
+                  <td class="col-produto"><strong>Micro-ondas Compact 20L</strong></td>
+                  <td class="id-cell col-sku">MOW-001</td>
+                  <td class="col-quantidade">248</td>
+                  <td class="col-localizacao">Bloco A - Prateleira 3</td>
                   <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
-                  <td class="col-time">14:22</td>
+                  <td class="col-acao"><a href="#" class="action-link">Editar</a></td>
                 </tr>
                 <tr>
-                  <td class="col-product"><strong>Micro-ondas Grill 32L</strong></td>
-                  <td class="id-cell col-lot">LT-0198</td>
-                  <td class="col-sector">Recebimento</td>
-                  <td class="col-user">José Arthur</td>
-                  <td class="col-status"><span class="pill warn">⊙ Em revisão</span></td>
-                  <td class="col-time">11:05</td>
+                  <td class="col-produto"><strong>Micro-ondas Grill 32L</strong></td>
+                  <td class="id-cell col-sku">MOW-002</td>
+                  <td class="col-quantidade">156</td>
+                  <td class="col-localizacao">Bloco B - Prateleira 1</td>
+                  <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
+                  <td class="col-acao"><a href="#" class="action-link">Editar</a></td>
                 </tr>
                 <tr>
-                  <td class="col-product"><strong>Micro-ondas Inox 28L</strong></td>
-                  <td class="id-cell col-lot">LT-0176</td>
-                  <td class="col-sector">Devolução</td>
-                  <td class="col-user">Luiz Gustavo</td>
-                  <td class="col-status"><span class="pill danger">✗ Avariado</span></td>
-                  <td class="col-time">17:40</td>
+                  <td class="col-produto"><strong>Micro-ondas Inox 28L</strong></td>
+                  <td class="id-cell col-sku">MOW-003</td>
+                  <td class="col-quantidade">89</td>
+                  <td class="col-localizacao">Bloco A - Prateleira 5</td>
+                  <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
+                  <td class="col-acao"><a href="#" class="action-link">Editar</a></td>
+                </tr>
+                <tr>
+                  <td class="col-produto"><strong>Refrigerador Side-by-Side</strong></td>
+                  <td class="id-cell col-sku">REF-001</td>
+                  <td class="col-quantidade">42</td>
+                  <td class="col-localizacao">Bloco C - Prateleira 2</td>
+                  <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
+                  <td class="col-acao"><a href="#" class="action-link">Editar</a></td>
+                </tr>
+                <tr>
+                  <td class="col-produto"><strong>Fogão Classe A 5 Bocas</strong></td>
+                  <td class="id-cell col-sku">FOG-001</td>
+                  <td class="col-quantidade">67</td>
+                  <td class="col-localizacao">Bloco D - Prateleira 4</td>
+                  <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
+                  <td class="col-acao"><a href="#" class="action-link">Editar</a></td>
                 </tr>
               </tbody>
             </table>
@@ -191,8 +188,6 @@
         </section>
       </div>
     </main>
-  </div>
-</div>
 
 <script src="./src/scripts/app.js"></script>
 </body>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eletrodex — Crítico & Pendências</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./src/styles/style.css">
+</head>
+<body data-page="critico">
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<div class="app-shell">
+  <div class="sidebar-scrim" data-sidebar-scrim></div>
+
+  <aside class="app-sidebar" id="app-sidebar" aria-label="Navegação principal">
+    <div class="brand-mark"><span>Eletrodex</span><span class="dot">●</span></div>
+
+    <p class="nav-group-label">Visão geral</p>
+    <ul class="nav-list">
+      <li><a href="dashboard.html" data-page="painel"><span class="tick"></span>Painel</a></li>
+      <li><a href="critico.html" data-page="critico"><span class="tick"></span>Crítico</a></li>
+      <li><a href="#" data-page="notificacoes"><span class="tick"></span>Notificações de estoque</a></li>
+    </ul>
+
+    <p class="nav-group-label">Estoque</p>
+    <ul class="nav-list">
+      <li><a href="produtos.html" data-page="produtos"><span class="tick"></span>Produtos</a></li>
+      <li><a href="#" data-page="lotes"><span class="tick"></span>Lotes</a></li>
+      <li><a href="#" data-page="movimentacao"><span class="tick"></span>Movimentação</a></li>
+      <li><a href="#" data-page="entrada"><span class="tick"></span>Entrada de produtos</a></li>
+      <li><a href="#" data-page="saida"><span class="tick"></span>Saída de produtos</a></li>
+      <li><a href="#" data-page="devolucoes"><span class="tick"></span>Devoluções</a></li>
+    </ul>
+
+    <p class="nav-group-label">Vendas</p>
+    <ul class="nav-list">
+      <li><a href="#" data-page="vendas"><span class="tick"></span>Vendas</a></li>
+      <li><a href="#" data-page="pagamentos"><span class="tick"></span>Formas de pagamento</a></li>
+    </ul>
+
+    <p class="nav-group-label">Administração</p>
+    <ul class="nav-list">
+      <li><a href="#" data-page="funcionarios"><span class="tick"></span>Funcionários</a></li>
+      <li><a href="#" data-page="niveis"><span class="tick"></span>Níveis de acesso</a></li>
+    </ul>
+
+    <div class="sidebar-foot">
+      <div class="avatar">SU</div>
+      <div class="user-info">
+        <div class="user-name">Seu usuário</div>
+        <div class="role-badge">Coordenador</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="app-topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
+        <div id="topo-site">
+          <h1>Crítico & Pendências</h1>
+          <p class="subtitle">Itens que necessitam de ação urgente</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⚠️</span>
+          <input type="search" class="search-input" placeholder="Buscar produto ou lote..." aria-label="Buscar">
+        </div>
+        <div class="notifications-wrapper">
+          <button class="icon-btn notification-btn" aria-label="Notificações de estoque crítico" aria-expanded="false" aria-controls="notifications-panel">
+            🔔
+            <span class="badge">3</span>
+          </button>
+
+          <div class="notifications-panel" id="notifications-panel" role="dialog" aria-labelledby="notifications-title">
+            <div class="notifications-header">
+              <h3 id="notifications-title">Notificações de Estoque</h3>
+              <button class="close-notifications-btn" aria-label="Fechar notificações">✕</button>
+            </div>
+
+            <div class="notifications-list">
+              <div class="notification-item notification-critical">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                  <div class="notification-title">Estoque Crítico</div>
+                  <div class="notification-message">Micro-ondas Compact 20L está em nível crítico (2 unidades)</div>
+                  <div class="notification-time">há 15 minutos</div>
+                </div>
+              </div>
+
+              <div class="notification-item notification-warning">
+                <div class="notification-icon">⊙</div>
+                <div class="notification-content">
+                  <div class="notification-title">Revisão Pendente</div>
+                  <div class="notification-message">Lote LT-0198 aguardando revisão há 2 horas</div>
+                  <div class="notification-time">há 2 horas</div>
+                </div>
+              </div>
+
+              <div class="notification-item notification-critical">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-content">
+                  <div class="notification-title">Vencimento Próximo</div>
+                  <div class="notification-message">Micro-ondas Grill 32L vence em 7 dias</div>
+                  <div class="notification-time">há 4 horas</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="notifications-footer">
+              <a href="#" class="view-all-notifications">Ver todas as notificações →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-content" id="conteudo">
+      <div class="content-container">
+
+        <!-- SEÇÃO: ESTOQUE CRÍTICO -->
+        <section class="card card-danger" aria-labelledby="criticos-title">
+          <div class="panel-header">
+            <h2 id="criticos-title">⚠️ Produtos em Nível Crítico</h2>
+            <a href="produtos.html" class="view-all-link">Ir para produtos →</a>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-produto">Produto</th>
+                  <th scope="col" class="col-sku">SKU</th>
+                  <th scope="col" class="col-quantidade">Qtd Atual</th>
+                  <th scope="col" class="col-minimo">Qtd Mín.</th>
+                  <th scope="col" class="col-diferenca">Diferença</th>
+                  <th scope="col" class="col-localizacao">Localização</th>
+                  <th scope="col" class="col-acao">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="danger-row">
+                  <td class="col-produto"><strong>Micro-ondas Compact 20L</strong></td>
+                  <td class="id-cell col-sku">MOW-001</td>
+                  <td class="col-quantidade">2</td>
+                  <td class="col-minimo">10</td>
+                  <td class="col-diferenca"><span class="badge-danger">-8</span></td>
+                  <td class="col-localizacao">Bloco A - Prateleira 3</td>
+                  <td class="col-acao"><a href="#" class="action-link">Repor</a></td>
+                </tr>
+                <tr class="danger-row">
+                  <td class="col-produto"><strong>Fogão Grill Premium</strong></td>
+                  <td class="id-cell col-sku">FOG-002</td>
+                  <td class="col-quantidade">5</td>
+                  <td class="col-minimo">15</td>
+                  <td class="col-diferenca"><span class="badge-danger">-10</span></td>
+                  <td class="col-localizacao">Bloco D - Prateleira 1</td>
+                  <td class="col-acao"><a href="#" class="action-link">Repor</a></td>
+                </tr>
+                <tr class="danger-row">
+                  <td class="col-produto"><strong>Forno Elétrico 50L</strong></td>
+                  <td class="id-cell col-sku">FOR-001</td>
+                  <td class="col-quantidade">8</td>
+                  <td class="col-minimo">20</td>
+                  <td class="col-diferenca"><span class="badge-danger">-12</span></td>
+                  <td class="col-localizacao">Bloco C - Prateleira 4</td>
+                  <td class="col-acao"><a href="#" class="action-link">Repor</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SEÇÃO: PENDÊNCIAS -->
+        <section class="card card-warning" aria-labelledby="pendencias-title">
+          <div class="panel-header">
+            <h2 id="pendencias-title">⊙ Pendências</h2>
+            <a href="movimentacoes.html" class="view-all-link">Ver movimentações →</a>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-tipo">Tipo</th>
+                  <th scope="col" class="col-produto">Descrição</th>
+                  <th scope="col" class="col-lote">Lote/Ref</th>
+                  <th scope="col" class="col-responsavel">Responsável</th>
+                  <th scope="col" class="col-tempo">Tempo Pendente</th>
+                  <th scope="col" class="col-acao">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="warning-row">
+                  <td class="col-tipo"><span class="pill warn">Revisão</span></td>
+                  <td class="col-produto"><strong>Micro-ondas Grill 32L</strong></td>
+                  <td class="id-cell col-lote">LT-0198</td>
+                  <td class="col-responsavel">José Arthur</td>
+                  <td class="col-tempo">2h 15min</td>
+                  <td class="col-acao"><a href="#" class="action-link">Revisar</a></td>
+                </tr>
+                <tr class="warning-row">
+                  <td class="col-tipo"><span class="pill warn">Verificação</span></td>
+                  <td class="col-produto"><strong>Refrigerador Inox 400L</strong></td>
+                  <td class="id-cell col-lote">LT-0201</td>
+                  <td class="col-responsavel">Maria Silva</td>
+                  <td class="col-tempo">45min</td>
+                  <td class="col-acao"><a href="#" class="action-link">Verificar</a></td>
+                </tr>
+                <tr class="warning-row">
+                  <td class="col-tipo"><span class="pill warn">Aprovação</span></td>
+                  <td class="col-produto"><strong>Fogão Inox Profissional</strong></td>
+                  <td class="id-cell col-lote">LT-0195</td>
+                  <td class="col-responsavel">Coordenador</td>
+                  <td class="col-tempo">1h 30min</td>
+                  <td class="col-acao"><a href="#" class="action-link">Aprovar</a></td>
+                </tr>
+                <tr class="warning-row">
+                  <td class="col-tipo"><span class="pill warn">Devolução</span></td>
+                  <td class="col-produto"><strong>Micro-ondas Inox 28L</strong></td>
+                  <td class="id-cell col-lote">LT-0176</td>
+                  <td class="col-responsavel">Luiz Gustavo</td>
+                  <td class="col-tempo">4h 20min</td>
+                  <td class="col-acao"><a href="#" class="action-link">Processar</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="./src/scripts/app.js"></script>
+</body>
+</html>
