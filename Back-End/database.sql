@@ -117,6 +117,23 @@ CREATE TABLE saida (
 );
 
 -- ==========================
+-- TABELA AJUSTE
+-- ==========================
+CREATE TABLE ajuste (
+    id_ajuste INT AUTO_INCREMENT PRIMARY KEY,
+    id_produto INT NOT NULL,
+    motivo VARCHAR(300) NOT NULL,
+    nota_fiscal INT NOT NULL,
+    id_funcionario INT NOT NULL,
+
+    FOREIGN KEY (id_produto)
+        REFERENCES produto(id_produto),
+
+    FOREIGN KEY (id_funcionario)
+        REFERENCES funcionario(id_funcionario)
+);
+
+-- ==========================
 -- NÍVEL
 -- ==========================
 INSERT INTO nivel (descricao)
@@ -187,3 +204,4 @@ SELECT * FROM lote;
 SELECT * FROM movimentacao_lote;
 SELECT * FROM entrada;
 SELECT * FROM saida;
+SELECT * FROM ajuste;
