@@ -1,15 +1,28 @@
 const SessionService = require("../services/SessionService");
+const FuncionarioRepository = require("../repositories/FuncionarioRepository");
 
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   const authorization = req.get("Authorization") || "";
   const match = /^Bearer ([a-f0-9]{64})$/i.exec(authorization);
-  const user = match && SessionService.find(match[1]);
+  const sessionUser = match && SessionService.find(match[1]);
 
-  if (!user) {
+  if (!sessionUser) {
     return res.status(401).json({ erro: "Autenticação necessária." });
   }
 
-  req.usuario = user;
+  try {
+    const user = await FuncionarioRepository.findAccessById(sessionUser.id_funcionario);
+    if (!user) {
+      SessionService.destroy(match[1]);
+      return res.status(401).json({ erro: "Sessão inválida." });
+    }
+
+    SessionService.update(match[1], user);
+    req.usuario = user;
+  } catch (error) {
+    return res.status(500).json({ erro: "Não foi possível validar a sessão." });
+  }
+
   req.sessionToken = match[1];
   next();
 }

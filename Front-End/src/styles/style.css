@@ -546,6 +546,21 @@ button {
   background: var(--color-bg);
   transition: border-color 0.15s ease, background 0.15s ease, width 0.2s ease;
 }
+.search-wrap.has-value .search-input { padding-right: 34px; }
+.search-clear {
+  position: absolute;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted);
+}
+.search-clear:hover { background: var(--color-line); color: var(--color-ink); }
 .search-input:focus {
   background: var(--color-surface);
   border-color: var(--color-primary);
@@ -1287,6 +1302,122 @@ a.kpi-grid:active {
   flex-shrink: 0;
 }
 
+/* ---- aplicação React ---- */
+#root { min-height: 100vh; }
+
+.app-sidebar .brand-mark {
+  color: #fff;
+  text-decoration: none;
+  padding: 0 5px 5px;
+}
+
+.app-shell > .sidebar-scrim { display: none; }
+
+.nav-group { display: contents; }
+.nav-list a svg { flex: 0 0 auto; opacity: 0.8; }
+.nav-list a.active svg { opacity: 1; }
+
+.sidebar-foot .user-info { min-width: 0; }
+.sidebar-foot .user-name {
+  max-width: 132px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+}
+
+.app-contrast-toggle {
+  position: static;
+  z-index: auto;
+  flex: 0 0 auto;
+  border-radius: var(--radius-sm);
+}
+
+.notification-item {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+}
+
+.notification-content,
+.notification-title,
+.notification-message,
+.notification-time { display: block; }
+
+.close-notifications-btn { flex: 0 0 28px; }
+.notifications-footer { color: var(--color-muted); }
+
+.notifications-wrapper .notifications-panel {
+  display: none;
+}
+
+.notifications-wrapper .notifications-panel.visible {
+  display: flex;
+}
+
+.access-denied {
+  margin: 18px 36px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-bg);
+  color: var(--color-ink);
+  font-size: 13px;
+}
+
+.empty-row {
+  padding: 26px 14px !important;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.action-link {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--color-bg);
+}
+
+.route-loading span {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--color-line);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: route-spin 0.8s linear infinite;
+}
+
+@keyframes route-spin { to { transform: rotate(360deg); } }
+
+.btn-primary:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.login-card .form-error { margin: 0 0 16px; }
+.login-card .form-error.success { display: block; }
+
+.app-sidebar a[aria-disabled="true"] { cursor: default; }
+.app-sidebar a[aria-disabled="true"]:hover { background: transparent; color: #DDDEF0; }
+
 /* Responsividade para produtos */
 @media (max-width: 1200px) {
   .cards-row {
@@ -1326,4 +1457,29 @@ a.kpi-grid:active {
     height: 28px;
     font-size: 14px;
   }
+}
+
+@media (max-width: 880px) {
+  .app-sidebar { z-index: 101; }
+  .sidebar-scrim {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-scrim.visible { display: block; }
+  .app-contrast-toggle { padding: 7px 9px; font-size: 11px; }
+  .access-denied { margin: 14px 20px 0; }
+}
+
+@media (max-width: 640px) {
+  .app-contrast-toggle { display: none; }
+  .login-card h1 { font-size: 24px; }
+  .notifications-panel { z-index: 110; }
 }

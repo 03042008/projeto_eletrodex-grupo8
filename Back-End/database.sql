@@ -98,6 +98,7 @@ CREATE TABLE entrada (
 -- ==========================
 CREATE TABLE saida (
     id_saida INT AUTO_INCREMENT PRIMARY KEY,
+    id_funcionario INT NULL,
     id_entrada INT NOT NULL,
     data_saida DATETIME NOT NULL,
     nome_produto VARCHAR(200) NOT NULL,
@@ -112,7 +113,10 @@ CREATE TABLE saida (
         REFERENCES produto(id_produto),
 
     FOREIGN KEY (id_lote)
-        REFERENCES lote(id_lote)
+        REFERENCES lote(id_lote),
+
+    FOREIGN KEY (id_funcionario)
+        REFERENCES funcionario(id_funcionario)
 );
 
 -- ==========================
@@ -139,7 +143,8 @@ INSERT INTO nivel (descricao)
 VALUES('Administrador'),
 ('Gerente'),
 ('Estoquista'),
-('Vendedor');
+('Vendedor'),
+('Funcionário');
 
 -- ==========================
 -- FUNCIONÁRIO

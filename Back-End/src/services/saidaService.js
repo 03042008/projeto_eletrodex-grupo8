@@ -1,8 +1,9 @@
 const SaidaRepository = require('../repositories/saidaRepository');
 
 class SaidaService {
-    async listarSaidas() {
-        const saidas = await SaidaRepository.findAll();
+    async listarSaidas(usuario) {
+        const idFuncionario = usuario.nivel === 'Vendedor' ? usuario.id_funcionario : null;
+        const saidas = await SaidaRepository.findAll(idFuncionario);
         return {
             sucesso: true,
             mensagem: "Saídas listadas com sucesso",
@@ -10,12 +11,13 @@ class SaidaService {
         };
     }
 
-    async buscarSaidaPorId(id) {
+    async buscarSaidaPorId(id, usuario) {
         if (!id || isNaN(id)) {
             throw { status: 400, mensagem: "ID inválido" };
         }
 
-        const saida = await SaidaRepository.findById(id);
+        const idFuncionario = usuario.nivel === 'Vendedor' ? usuario.id_funcionario : null;
+        const saida = await SaidaRepository.findById(id, idFuncionario);
         if (!saida) {
             throw { status: 404, mensagem: "Registro de saída não encontrado" };
         }
@@ -27,14 +29,22 @@ class SaidaService {
         };
     }
 
-    async cadastrarSaida(dados) {
-        const { ID_entrada, Data_saida, Nome_produto, ID_produto, Setor_produto, ID_lote } = dados || {};
+    async cadastrarSaida(dados, usuario) {
+        const { id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote } = dados || {};
 
-        if (!ID_entrada || !Data_saida || !Nome_produto || !ID_produto || !Setor_produto || !ID_lote) {
-            throw { status: 400, mensagem: "Todos os campos obrigatórios (ID_entrada, Data_saida, Nome_produto, ID_produto, Setor_produto, ID_lote) devem ser preenchidos" };
+        if (!id_entrada || !data_saida || !nome_produto || !id_produto || !setor_produto || !id_lote) {
+            throw { status: 400, mensagem: "Todos os campos obrigatórios devem ser preenchidos." };
         }
 
-        const id = await SaidaRepository.create(dados);
+        const id = await SaidaRepository.create({
+            id_entrada,
+            data_saida,
+            nome_produto,
+            id_produto,
+            setor_produto,
+            id_lote,
+            id_funcionario: usuario.id_funcionario,
+        });
         return {
             sucesso: true,
             mensagem: "Registro de saída cadastrado com sucesso",
@@ -52,8 +62,8 @@ class SaidaService {
             throw { status: 404, mensagem: "Registro de saída não encontrado para atualização" };
         }
 
-        const { ID_entrada, Data_saida, Nome_produto, ID_produto, Setor_produto, ID_lote } = dadosAtualizacao || {};
-        if (!ID_entrada || !Data_saida || !Nome_produto || !ID_produto || !Setor_produto || !ID_lote) {
+        const { id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote } = dadosAtualizacao || {};
+        if (!id_entrada || !data_saida || !nome_produto || !id_produto || !setor_produto || !id_lote) {
             throw { status: 400, mensagem: "Todos os campos obrigatórios devem ser fornecidos para atualização" };
         }
 
