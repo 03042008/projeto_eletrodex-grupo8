@@ -3,14 +3,14 @@ const pool = require("../config/database");
 class FuncionarioRepository {
   async findAll() {
     const [rows] = await pool.query(
-      "SELECT f.id_funcionario, f.id_nivel, n.descricao AS nivel, f.nome, f.email, f.cpf FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel ORDER BY f.id_funcionario DESC"
+      "SELECT id_funcionario, id_nivel, nome, email, cpf FROM funcionario ORDER BY id_funcionario DESC"
     );
     return rows;
   }
 
   async findById(id) {
     const [rows] = await pool.query(
-      "SELECT f.id_funcionario, f.id_nivel, n.descricao AS nivel, f.nome, f.email, f.cpf FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel WHERE f.id_funcionario = ?",
+      "SELECT id_funcionario, id_nivel, nome, email, cpf FROM funcionario WHERE id_funcionario = ?",
       [id]
     );
     return rows[0] || null;
@@ -28,14 +28,6 @@ class FuncionarioRepository {
     const [rows] = await pool.query(
       "SELECT f.id_funcionario, f.id_nivel, f.nome, f.email, f.senha, n.descricao AS nivel FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel WHERE f.email = ? LIMIT 1",
       [email]
-    );
-    return rows[0] || null;
-  }
-
-  async findAccessById(id) {
-    const [rows] = await pool.query(
-      "SELECT f.id_funcionario, f.id_nivel, f.nome, f.email, n.descricao AS nivel FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel WHERE f.id_funcionario = ? LIMIT 1",
-      [id]
     );
     return rows[0] || null;
   }

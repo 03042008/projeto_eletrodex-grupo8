@@ -1,64 +1,55 @@
 const db = require('../config/database'); // Ajuste o caminho do seu banco de dados
 
 class SaidaRepository {
-    async findAll(idFuncionario = null) {
-        const query = idFuncionario
-            ? 'SELECT * FROM saida WHERE id_funcionario = ? ORDER BY id_saida DESC'
-            : 'SELECT * FROM saida ORDER BY id_saida DESC';
-        const [rows] = idFuncionario
-            ? await db.query(query, [idFuncionario])
-            : await db.query(query);
+    async findAll() {
+        const query = 'SELECT * FROM Saida';
+        const [rows] = await db.query(query);
         return rows;
     }
 
-    async findById(id, idFuncionario = null) {
-        const query = idFuncionario
-            ? 'SELECT * FROM saida WHERE id_saida = ? AND id_funcionario = ?'
-            : 'SELECT * FROM saida WHERE id_saida = ?';
-        const [rows] = idFuncionario
-            ? await db.query(query, [id, idFuncionario])
-            : await db.query(query, [id]);
+    async findById(id) {
+        const query = 'SELECT * FROM Saida WHERE ID_saida = ?';
+        const [rows] = await db.query(query, [id]);
         return rows[0];
     }
 
     async create(dados) {
-        const { id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote, id_funcionario } = dados;
+        const { ID_entrada, Data_saida, Nome_produto, ID_produto, Setor_produto, ID_lote } = dados;
         const query = `
-            INSERT INTO saida (id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote, id_funcionario)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Saida (ID_entrada, Data_saida, Nome_produto, ID_produto, Setor_produto, ID_lote)
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
         const [result] = await db.query(query, [
-            id_entrada,
-            data_saida,
-            nome_produto,
-            id_produto,
-            setor_produto,
-            id_lote,
-            id_funcionario,
+            ID_entrada,
+            Data_saida,
+            Nome_produto,
+            ID_produto,
+            Setor_produto,
+            ID_lote
         ]);
         return result.insertId;
     }
 
     async update(id, dados) {
-        const { id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote } = dados;
+        const { ID_entrada, Data_saida, Nome_produto, ID_produto, Setor_produto, ID_lote } = dados;
         const query = `
-            UPDATE saida
-            SET id_entrada = ?, data_saida = ?, nome_produto = ?, id_produto = ?, setor_produto = ?, id_lote = ?
-            WHERE id_saida = ?
+            UPDATE Saida 
+            SET ID_entrada = ?, Data_saida = ?, Nome_produto = ?, ID_produto = ?, Setor_produto = ?, ID_lote = ?
+            WHERE ID_saida = ?
         `;
         await db.query(query, [
-            id_entrada,
-            data_saida,
-            nome_produto,
-            id_produto,
-            setor_produto,
-            id_lote,
+            ID_entrada,
+            Data_saida,
+            Nome_produto,
+            ID_produto,
+            Setor_produto,
+            ID_lote,
             id
         ]);
     }
 
     async delete(id) {
-        const query = 'DELETE FROM saida WHERE id_saida = ?';
+        const query = 'DELETE FROM Saida WHERE ID_saida = ?';
         await db.query(query, [id]);
     }
 }

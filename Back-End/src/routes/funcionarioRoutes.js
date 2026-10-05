@@ -8,11 +8,11 @@ router.post("/cadastro", FuncionarioController.cadastrarConta);
 router.get("/sessao", authenticate, FuncionarioController.sessaoAtual);
 router.post("/logout", authenticate, FuncionarioController.logout);
 
-router.use(authenticate);
-router.get("/", authorize("Administrador", "Gerente"), FuncionarioController.listar);
-router.get("/:id", authorize("Administrador", "Gerente"), FuncionarioController.buscarPorId);
-router.post("/", authorize("Administrador"), FuncionarioController.cadastrar);
-router.put("/:id", authorize("Administrador"), FuncionarioController.atualizar);
-router.delete("/:id", authorize("Administrador"), FuncionarioController.deletar);
+router.use(authenticate, authorize("Administrador"));
+router.get("/", FuncionarioController.listar);
+router.get("/:id", FuncionarioController.buscarPorId);
+router.post("/", FuncionarioController.cadastrar);
+router.put("/:id", FuncionarioController.atualizar);
+router.delete("/:id", FuncionarioController.deletar);
 
 module.exports = router;

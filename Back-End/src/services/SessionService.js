@@ -26,11 +26,4 @@ function destroy(token) {
   sessions.delete(token);
 }
 
-function update(token, user) {
-  const session = sessions.get(token);
-  if (!session) return false;
-  session.user = user;
-  return true;
-}
-
-module.exports = { create, find, destroy, update };
+module.exports = { create, find, destroy };

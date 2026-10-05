@@ -70,10 +70,10 @@ class FuncionarioController {
   async atualizar(req, res) {
     try {
       const id = req.params.id;
-      const resultado = await FuncionarioService.atualizarFuncionario(id, req.body, req.usuario.id_funcionario);
+      const resultado = await FuncionarioService.atualizarFuncionario(id, req.body);
       res.status(200).json(resultado);
     } catch (error) {
-      const code = error.status || 500;
+      const code = error.status || 400;
       res.status(code).json({ erro: error.mensagem || error.message });
     }
   }

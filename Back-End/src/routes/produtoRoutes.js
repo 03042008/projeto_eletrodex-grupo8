@@ -5,10 +5,10 @@ const upload = require('../config/multer');
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
 
 router.use(authenticate);
-router.get('/', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'), ProdutoController.listar);
-router.get('/:id', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'), ProdutoController.buscarPorId);
-router.post('/', authorize('Administrador', 'Gerente'), upload.single('imagem'), ProdutoController.cadastrarComImagem);
-router.put('/:id', authorize('Administrador', 'Gerente'), upload.single('imagem'), ProdutoController.atualizar);
-router.delete('/:id', authorize('Administrador', 'Gerente'), ProdutoController.deletar);
+router.get('/', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor'), ProdutoController.listar);
+router.get('/:id', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor'), ProdutoController.buscarPorId);
+router.post('/', authorize('Administrador', 'Estoquista'), upload.single('imagem'), ProdutoController.cadastrarComImagem);
+router.put('/:id', authorize('Administrador', 'Estoquista'), upload.single('imagem'), ProdutoController.atualizar);
+router.delete('/:id', authorize('Administrador', 'Estoquista'), ProdutoController.deletar);
 
 module.exports = router;
