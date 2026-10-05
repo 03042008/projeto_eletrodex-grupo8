@@ -3,7 +3,11 @@ const pool = require('../config/database');
 module.exports = {
   async listar(req, res) {
     try {
-      const [rows] = await pool.query('SELECT * FROM saida ORDER BY id_saida DESC');
+      const isSeller = req.usuario.nivel === 'Vendedor';
+      const [rows] = await pool.query(
+        `SELECT * FROM saida ${isSeller ? 'WHERE id_funcionario = ?' : ''} ORDER BY id_saida DESC`,
+        isSeller ? [req.usuario.id_funcionario] : []
+      );
       return res.status(200).json(rows);
     } catch (error) {
       return res.status(500).json({ error: 'Erro ao buscar saídas.', detalhe: error.message });
@@ -13,7 +17,11 @@ module.exports = {
   async buscarPorId(req, res) {
     const { id } = req.params;
     try {
-      const [rows] = await pool.query('SELECT * FROM saida WHERE id_saida = ?', [id]);
+      const isSeller = req.usuario.nivel === 'Vendedor';
+      const [rows] = await pool.query(
+        `SELECT * FROM saida WHERE id_saida = ? ${isSeller ? 'AND id_funcionario = ?' : ''}`,
+        isSeller ? [id, req.usuario.id_funcionario] : [id]
+      );
       if (rows.length === 0) {
         return res.status(404).json({ message: 'Registro de saída não encontrado.' });
       }
@@ -32,10 +40,18 @@ module.exports = {
       }
 
       const query = `
-        INSERT INTO saida (id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO saida (id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote, id_funcionario)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
-      const [result] = await pool.query(query, [id_entrada, data_saida, nome_produto, id_produto, setor_produto, id_lote]);
+      const [result] = await pool.query(query, [
+        id_entrada,
+        data_saida,
+        nome_produto,
+        id_produto,
+        setor_produto,
+        id_lote,
+        req.usuario.id_funcionario
+      ]);
       
       return res.status(201).json({ id_saida: result.insertId, message: 'Saída registrada com sucesso.' });
     } catch (error) {

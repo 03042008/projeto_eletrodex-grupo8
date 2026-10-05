@@ -4,10 +4,10 @@ const MovimentacaoLoteController = require("../controllers/movimentacaoLoteContr
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
 router.use(authenticate);
-router.post("/", authorize("Administrador", "Estoquista"), MovimentacaoLoteController.create);
+router.post("/", authorize("Administrador", "Gerente"), MovimentacaoLoteController.create);
 router.get("/", authorize("Administrador", "Gerente", "Estoquista"), MovimentacaoLoteController.getAll);
 router.get("/:id", authorize("Administrador", "Gerente", "Estoquista"), MovimentacaoLoteController.getById);
-router.patch("/:id", authorize("Administrador", "Estoquista"), MovimentacaoLoteController.update);
-router.delete("/:id", authorize("Administrador", "Estoquista"), MovimentacaoLoteController.delete);
+router.patch("/:id", authorize("Administrador", "Gerente"), MovimentacaoLoteController.update);
+router.delete("/:id", authorize("Administrador", "Gerente"), MovimentacaoLoteController.delete);
 
 module.exports = router;

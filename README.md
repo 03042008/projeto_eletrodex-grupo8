@@ -68,19 +68,19 @@ O acesso ao sistema é dividido de acordo com o cargo do funcionário.
 
 O sistema prevê diferentes permissões para usuários, garantindo que cada funcionário tenha acesso somente às funcionalidades necessárias para sua função.
 
-Entre os perfis previstos estão:
+Os cargos e suas permissões são:
 
-- Gerente;
-- Coordenador;
 - Administrador;
-- RH;
-- Operador de Estoque.
+- Gerente;
+- Estoquista;
+- Vendedor;
+- Funcionário.
 
 ---
 
 ## 📦 Funcionalidades
 
-O banco já define Administrador, Gerente, Estoquista e Vendedor; a interface tem seções de Visão geral, Estoque, Vendas e Administração. Para não atribuir permissões erradas, preciso confirmar a matriz. O Administrador: tudo; Gerente: painel/relatórios e visão geral do estoque/vendas; Estoquista: operações de estoque; Vendedor: vendas e consulta de produtos.
+O Administrador tem acesso total; o Gerente administra produtos e estoque e consulta funcionários; o Estoquista executa operações de estoque; o Vendedor consulta produtos/estoque e registra saídas de venda; Funcionário tem acesso básico de leitura ao painel e produtos.
 
 ### 👤 Funcionários
 
@@ -218,6 +218,16 @@ Entre as principais entidades estão:
 
 O banco possui relacionamentos entre funcionários, níveis, produtos e lotes para organizar as informações do sistema.
 
+### Atualização de banco existente
+
+Para aplicar o RBAC em uma instalação já existente, execute uma vez o script
+[`Back-End/migrations/001_rbac.sql`](./Back-End/migrations/001_rbac.sql) no banco `eletrodex`
+antes de iniciar a API. Ele cria o vínculo entre saídas e funcionários (para que
+Vendedores consultem somente as próprias operações) e adiciona o cargo
+`Funcionário`, usado como perfil padrão em novos cadastros públicos.
+O script também amplia a coluna de senha para comportar os hashes bcrypt usados
+pela API.
+
 ---
 
 ## 🔌 API
@@ -236,31 +246,35 @@ A API utiliza **JSON** para requisições e respostas.
 
 O login utiliza `POST /funcionarios/login` com `email` e `senha`. As credenciais
 são verificadas com bcrypt; e-mail inexistente ou senha incorreta retorna `401`.
+O token usado pela API é uma sessão opaca em memória, não um JWT assinado; o cargo
+é consultado novamente no banco para cada requisição protegida.
 O token Bearer retornado é exigido nas páginas internas e nas rotas protegidas.
 
 ### Permissões por cargo
 
 | Cargo | Permissões |
 | ----- | ---------- |
-| Administrador | Acesso completo, inclusive funcionários e níveis |
-| Gerente | Leitura do painel e dos dados de estoque; sem alterações ou administração |
-| Estoquista | Consulta e operações de estoque; sem administração de usuários e níveis |
-| Vendedor | Consulta de produtos; sem operações de estoque |
+| Administrador | Acesso total; gerencia funcionários e níveis, inclusive cargos de outros usuários |
+| Gerente | Gerencia produtos, lotes e estoque; consulta/insere movimentações; consulta funcionários, painel e relatórios; não altera níveis |
+| Estoquista | Consulta produtos; gerencia lotes; registra entradas e saídas; consulta movimentações; não gerencia produtos, funcionários ou níveis |
+| Vendedor | Consulta produtos e disponibilidade; registra saídas; consulta somente as próprias saídas; não gerencia estoque, lotes, funcionários ou níveis |
+| Funcionário | Acesso básico de leitura ao painel e produtos |
 
 As sessões Bearer expiram após 8 horas e ficam em memória no processo Node; reiniciar
-o backend encerra as sessões ativas. Vendas e formas de pagamento ainda são links
-de interface sem endpoints implementados.
+o backend encerra as sessões ativas. Funcionários não podem alterar o próprio cargo. Só Administradores podem atribuir
+ou alterar o cargo de outro funcionário. As rotas protegidas respondem `401` sem
+sessão válida e `403` quando o cargo não tem permissão. O backend aplica as regras
+independentemente dos menus e botões ocultados pelo frontend. Reiniciar o backend
+encerra as sessões ativas. Vendas e formas de pagamento ainda são links de interface
+sem endpoints específicos implementados.
 
 Para criar uma conta pela tela pública, use `POST /funcionarios/cadastro` com
-`nome`, `email`, `cpf` e `senha`. O cadastro recebe o nível Estoquista e salva a
+`nome`, `email`, `cpf` e `senha`. O cadastro recebe o nível Funcionário e salva a
 senha com bcrypt. A coluna `funcionario.senha` deve ser `VARCHAR(255)`.
 
-Em bancos existentes, ajuste a coluna antes de iniciar a aplicação e converta as
-senhas antigas com `npm run migrate:passwords`:
-
-```sql
-ALTER TABLE funcionario MODIFY senha VARCHAR(255) NOT NULL;
-```
+Em bancos existentes, execute a migração indicada acima antes de iniciar a aplicação.
+Se o banco ainda tiver senhas em texto puro, converta-as com
+`npm run migrate:passwords`.
 
 ### Produtos
 

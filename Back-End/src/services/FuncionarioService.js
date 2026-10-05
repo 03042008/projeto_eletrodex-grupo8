@@ -130,14 +130,14 @@ class FuncionarioService {
   }
 
   async cadastrarConta(dados) {
-    const idNivel = await FuncionarioRepository.findNivelIdByDescricao("Estoquista");
+    const idNivel = await FuncionarioRepository.findNivelIdByDescricao("Funcionário");
     if (!idNivel) {
       throw { status: 500, mensagem: "Nível padrão para cadastro não configurado." };
     }
     return this.cadastrarFuncionario({ ...dados, id_nivel: idNivel });
   }
 
-  async atualizarFuncionario(id, dados) {
+  async atualizarFuncionario(id, dados, actorId) {
     if (!id || Number.isNaN(Number(id))) {
       throw { status: 400, mensagem: "ID inválido" };
     }
@@ -145,6 +145,10 @@ class FuncionarioService {
     const existente = await FuncionarioRepository.findById(id);
     if (!existente) {
       throw { status: 404, mensagem: "Funcionário não encontrado" };
+    }
+
+    if (dados.id_nivel !== undefined && Number(id) === Number(actorId)) {
+      throw { status: 403, mensagem: "Não é permitido alterar o próprio cargo." };
     }
 
     const atualizacao = {};

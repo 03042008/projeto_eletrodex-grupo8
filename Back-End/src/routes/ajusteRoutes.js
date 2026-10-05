@@ -6,8 +6,8 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware');
 router.use(authenticate);
 router.get('/', authorize('Administrador', 'Gerente', 'Estoquista'), AjusteController.listar);
 router.get('/:id', authorize('Administrador', 'Gerente', 'Estoquista'), AjusteController.buscarPorId);
-router.post('/', authorize('Administrador', 'Estoquista'), AjusteController.cadastrar);
-router.put('/:id', authorize('Administrador', 'Estoquista'), AjusteController.atualizar);
-router.delete('/:id', authorize('Administrador', 'Estoquista'), AjusteController.deletar);
+router.post('/', authorize('Administrador', 'Gerente'), AjusteController.cadastrar);
+router.put('/:id', authorize('Administrador', 'Gerente'), AjusteController.atualizar);
+router.delete('/:id', authorize('Administrador', 'Gerente'), AjusteController.deletar);
 
 module.exports = router;

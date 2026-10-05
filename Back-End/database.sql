@@ -85,12 +85,16 @@ CREATE TABLE entrada (
     id_produto INT NOT NULL,
     setor_produto VARCHAR(200) NOT NULL,
     id_lote INT NOT NULL,
+    id_funcionario INT NULL,
 
     FOREIGN KEY (id_produto)
         REFERENCES produto(id_produto),
 
     FOREIGN KEY (id_lote)
-        REFERENCES lote(id_lote)
+        REFERENCES lote(id_lote),
+
+    FOREIGN KEY (id_funcionario)
+        REFERENCES funcionario(id_funcionario)
 );
 
 -- ==========================
@@ -140,6 +144,9 @@ VALUES('Administrador'),
 ('Gerente'),
 ('Estoquista'),
 ('Vendedor');
+
+INSERT INTO nivel (descricao)
+VALUES (CONVERT(0x46756E63696F6EC3A172696F USING utf8mb4));
 
 -- ==========================
 -- FUNCIONÁRIO

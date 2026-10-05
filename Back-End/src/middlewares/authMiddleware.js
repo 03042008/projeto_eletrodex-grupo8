@@ -1,20 +1,37 @@
 const SessionService = require("../services/SessionService");
+const FuncionarioRepository = require("../repositories/FuncionarioRepository");
 
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   const authorization = req.get("Authorization") || "";
-  const match = /^Bearer ([a-f0-9]{64})$/i.exec(authorization);
-  const user = match && SessionService.find(match[1]);
+  const match = /^Bearer\s+(\S+)$/i.exec(authorization);
+  const sessionUser = match && SessionService.find(match[1]);
 
-  if (!user) {
+  if (!sessionUser) {
     return res.status(401).json({ erro: "Autenticação necessária." });
   }
 
-  req.usuario = user;
-  req.sessionToken = match[1];
-  next();
+  try {
+    const user = await FuncionarioRepository.findById(sessionUser.id_funcionario);
+    if (!user) {
+      SessionService.destroy(match[1]);
+      return res.status(401).json({ erro: "Sessão inválida." });
+    }
+
+    req.usuario = {
+      ...sessionUser,
+      id_nivel: user.id_nivel,
+      nome: user.nome,
+      email: user.email,
+      nivel: user.nivel,
+    };
+    req.sessionToken = match[1];
+    return next();
+  } catch (error) {
+    return res.status(500).json({ erro: "Não foi possível validar a sessão." });
+  }
 }
 
-function authorize(...allowedRoles) {
+function permitirCargos(...allowedRoles) {
   return (req, res, next) => {
     if (!req.usuario) {
       return res.status(401).json({ erro: "Autenticação necessária." });
@@ -22,8 +39,12 @@ function authorize(...allowedRoles) {
     if (!allowedRoles.includes(req.usuario.nivel)) {
       return res.status(403).json({ erro: "Seu cargo não tem permissão para esta função." });
     }
-    next();
+    return next();
   };
 }
 
-module.exports = { authenticate, authorize };
+module.exports = {
+  authenticate,
+  permitirCargos,
+  authorize: permitirCargos,
+};

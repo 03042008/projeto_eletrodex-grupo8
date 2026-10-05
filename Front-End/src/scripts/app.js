@@ -2,9 +2,9 @@
 
 const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
 const PAGE_ROLES = {
-  painel: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor'],
+  painel: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
   critico: ['Administrador', 'Gerente', 'Estoquista'],
-  produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor'],
+  produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -79,11 +79,6 @@ function applyRoleAccess(user) {
     avatar.textContent = user.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
   }
 
-  if (user.nivel !== 'Administrador' && user.nivel !== 'Estoquista') {
-    document.querySelectorAll('.col-acao').forEach((action) => {
-      action.hidden = true;
-    });
-  }
 }
 
 function initLogout() {
