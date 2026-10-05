@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const LoteController = require("../controllers/LoteController");
+const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
-router.get("/", LoteController.listar);
-router.get("/:id", LoteController.buscarPorId);
-router.post("/", LoteController.cadastrar);
-router.put("/:id", LoteController.atualizar);
-router.delete("/:id", LoteController.deletar);
+router.use(authenticate);
+router.get("/", authorize("Administrador", "Gerente", "Estoquista"), LoteController.listar);
+router.get("/:id", authorize("Administrador", "Gerente", "Estoquista"), LoteController.buscarPorId);
+router.post("/", authorize("Administrador", "Estoquista"), LoteController.cadastrar);
+router.put("/:id", authorize("Administrador", "Estoquista"), LoteController.atualizar);
+router.delete("/:id", authorize("Administrador", "Estoquista"), LoteController.deletar);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const FuncionarioService = require("../services/FuncionarioService");
+const SessionService = require("../services/SessionService");
 
 class FuncionarioController {
   async listar(req, res) {
@@ -28,6 +29,41 @@ class FuncionarioController {
     } catch (error) {
       const code = error.status || 400;
       res.status(code).json({ erro: error.mensagem || error.message });
+    }
+  }
+
+  async login(req, res) {
+    try {
+      const resultado = await FuncionarioService.autenticarFuncionario(req.body);
+      res.status(200).json(resultado);
+    } catch (error) {
+      const status = error.status || 500;
+      const mensagem = status === 500
+        ? "Não foi possível entrar. Tente novamente mais tarde."
+        : error.mensagem;
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
+  sessaoAtual(req, res) {
+    res.status(200).json({ sucesso: true, usuario: req.usuario });
+  }
+
+  logout(req, res) {
+    SessionService.destroy(req.sessionToken);
+    res.status(204).end();
+  }
+
+  async cadastrarConta(req, res) {
+    try {
+      const resultado = await FuncionarioService.cadastrarConta(req.body);
+      res.status(201).json(resultado);
+    } catch (error) {
+      const status = error.status || (error.code === "ER_DUP_ENTRY" ? 409 : 500);
+      const mensagem = status === 500
+        ? "Não foi possível cadastrar o funcionário. Tente novamente mais tarde."
+        : error.mensagem || "E-mail ou CPF já cadastrado.";
+      res.status(status).json({ erro: mensagem });
     }
   }
 

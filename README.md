@@ -10,10 +10,10 @@ O sistema foi planejado para uso **desktop** e possui diferentes níveis de aces
 
 ## 👥 Equipe
 
-* João Lucas de Campos Gonçalves
-* José Arthur Armelin de Paula
-* Letícia Caristo dos Santos
-* Luiz Gustavo Rodrigues Gaspar
+- João Lucas de Campos Gonçalves
+- José Arthur Armelin de Paula
+- Letícia Caristo dos Santos
+- Luiz Gustavo Rodrigues Gaspar
 
 ---
 
@@ -23,18 +23,18 @@ O sistema foi desenvolvido para substituir processos de estoque que anteriorment
 
 Com o Eletrodex, a empresa pode:
 
-* Cadastrar e gerenciar produtos;
-* Cadastrar e gerenciar funcionários;
-* Controlar lotes;
-* Registrar entradas e saídas de produtos;
-* Controlar a movimentação dos produtos;
-* Acompanhar a localização dos produtos;
-* Gerenciar diferentes níveis de acesso;
-* Realizar vendas;
-* Controlar formas de pagamento;
-* Receber notificações sobre estoque;
-* Gerenciar devoluções;
-* Utilizar recursos de acessibilidade.
+- Cadastrar e gerenciar produtos;
+- Cadastrar e gerenciar funcionários;
+- Controlar lotes;
+- Registrar entradas e saídas de produtos;
+- Controlar a movimentação dos produtos;
+- Acompanhar a localização dos produtos;
+- Gerenciar diferentes níveis de acesso;
+- Realizar vendas;
+- Controlar formas de pagamento;
+- Receber notificações sobre estoque;
+- Gerenciar devoluções;
+- Utilizar recursos de acessibilidade.
 
 A proposta é melhorar a produtividade, a segurança e a organização dos processos da empresa.
 
@@ -70,35 +70,37 @@ O sistema prevê diferentes permissões para usuários, garantindo que cada func
 
 Entre os perfis previstos estão:
 
-* Gerente;
-* Coordenador;
-* Administrador;
-* RH;
-* Operador de Estoque.
+- Gerente;
+- Coordenador;
+- Administrador;
+- RH;
+- Operador de Estoque.
 
 ---
 
 ## 📦 Funcionalidades
 
+O banco já define Administrador, Gerente, Estoquista e Vendedor; a interface tem seções de Visão geral, Estoque, Vendas e Administração. Para não atribuir permissões erradas, preciso confirmar a matriz. O Administrador: tudo; Gerente: painel/relatórios e visão geral do estoque/vendas; Estoquista: operações de estoque; Vendedor: vendas e consulta de produtos.
+
 ### 👤 Funcionários
 
 Permite:
 
-* Cadastrar funcionários;
-* Listar funcionários;
-* Buscar funcionário por ID;
-* Atualizar dados;
-* Remover funcionários.
+- Cadastrar funcionários;
+- Listar funcionários;
+- Buscar funcionário por ID;
+- Atualizar dados;
+- Remover funcionários.
 
 ### 📦 Produtos
 
 Permite:
 
-* Cadastrar produtos;
-* Listar produtos;
-* Buscar produtos por ID;
-* Atualizar produtos;
-* Remover produtos.
+- Cadastrar produtos;
+- Listar produtos;
+- Buscar produtos por ID;
+- Atualizar produtos;
+- Remover produtos.
 
 Cada produto possui um identificador único.
 
@@ -106,34 +108,34 @@ Cada produto possui um identificador único.
 
 Permite:
 
-* Cadastrar níveis;
-* Listar níveis;
-* Buscar níveis;
-* Atualizar níveis;
-* Remover níveis.
+- Cadastrar níveis;
+- Listar níveis;
+- Buscar níveis;
+- Atualizar níveis;
+- Remover níveis.
 
 ### 📋 Lotes
 
 O sistema permite controlar os lotes de produtos, armazenando informações como:
 
-* Localização;
-* Responsável;
-* Nota fiscal;
-* Valor;
-* Data de entrada;
-* Revisões.
+- Localização;
+- Responsável;
+- Nota fiscal;
+- Valor;
+- Data de entrada;
+- Revisões.
 
 ### 🔄 Movimentação de produtos
 
 O sistema registra a movimentação dos produtos, armazenando informações como:
 
-* Localização;
-* Data e hora;
-* Funcionário responsável;
-* Setor;
-* Estado do produto;
-* Data da última revisão;
-* Próxima revisão.
+- Localização;
+- Data e hora;
+- Funcionário responsável;
+- Setor;
+- Estado do produto;
+- Data da última revisão;
+- Próxima revisão.
 
 As movimentações ficam registradas para permitir o acompanhamento do histórico dos produtos.
 
@@ -141,22 +143,22 @@ As movimentações ficam registradas para permitir o acompanhamento do históric
 
 Permite registrar:
 
-* Data de entrada;
-* Produto;
-* ID do produto;
-* Setor;
-* Lote.
+- Data de entrada;
+- Produto;
+- ID do produto;
+- Setor;
+- Lote.
 
 ### 📤 Saída de produtos
 
 Permite registrar:
 
-* Data e hora da saída;
-* Produto;
-* ID do produto;
-* Setor;
-* Lote;
-* Registro da saída.
+- Data e hora da saída;
+- Produto;
+- ID do produto;
+- Setor;
+- Lote;
+- Registro da saída.
 
 ### 🔔 Notificações
 
@@ -166,10 +168,10 @@ O sistema possui notificações para informar quando a quantidade de produtos no
 
 Para realizar uma devolução, o sistema deve solicitar:
 
-* Foto do produto;
-* Motivo da devolução;
-* Informações relacionadas ao lote;
-* ID do produto.
+- Foto do produto;
+- Motivo da devolução;
+- Informações relacionadas ao lote;
+- ID do produto.
 
 Essas informações são utilizadas para análise da devolução.
 
@@ -177,9 +179,9 @@ Essas informações são utilizadas para análise da devolução.
 
 O sistema aceita:
 
-* PIX;
-* Cartão de débito;
-* Cartão de crédito.
+- PIX;
+- Cartão de débito;
+- Cartão de crédito.
 
 O pagamento em dinheiro e vales não é aceito.
 
@@ -191,10 +193,10 @@ A acessibilidade é um dos requisitos não funcionais do projeto.
 
 O sistema possui:
 
-* Alto contraste;
-* Cores pensadas para melhorar a leitura;
-* Navegação por teclado;
-* Interface com boa legibilidade.
+- Alto contraste;
+- Cores pensadas para melhorar a leitura;
+- Navegação por teclado;
+- Interface com boa legibilidade.
 
 As páginas devem seguir diretrizes de acessibilidade e permitir que suas funcionalidades sejam utilizadas pelo teclado.
 
@@ -206,13 +208,13 @@ O projeto utiliza **MySQL** para armazenamento dos dados.
 
 Entre as principais entidades estão:
 
-* Funcionário;
-* Produto;
-* Nível;
-* Lote;
-* Movimentação de Lote;
-* Entrada;
-* Saída.
+- Funcionário;
+- Produto;
+- Nível;
+- Lote;
+- Movimentação de Lote;
+- Entrada;
+- Saída.
 
 O banco possui relacionamentos entre funcionários, níveis, produtos e lotes para organizar as informações do sistema.
 
@@ -231,6 +233,34 @@ A API utiliza **JSON** para requisições e respostas.
 | POST   | `/funcionarios`     | Cadastra funcionário |
 | PUT    | `/funcionarios/:id` | Atualiza funcionário |
 | DELETE | `/funcionarios/:id` | Remove funcionário   |
+
+O login utiliza `POST /funcionarios/login` com `email` e `senha`. As credenciais
+são verificadas com bcrypt; e-mail inexistente ou senha incorreta retorna `401`.
+O token Bearer retornado é exigido nas páginas internas e nas rotas protegidas.
+
+### Permissões por cargo
+
+| Cargo | Permissões |
+| ----- | ---------- |
+| Administrador | Acesso completo, inclusive funcionários e níveis |
+| Gerente | Leitura do painel e dos dados de estoque; sem alterações ou administração |
+| Estoquista | Consulta e operações de estoque; sem administração de usuários e níveis |
+| Vendedor | Consulta de produtos; sem operações de estoque |
+
+As sessões Bearer expiram após 8 horas e ficam em memória no processo Node; reiniciar
+o backend encerra as sessões ativas. Vendas e formas de pagamento ainda são links
+de interface sem endpoints implementados.
+
+Para criar uma conta pela tela pública, use `POST /funcionarios/cadastro` com
+`nome`, `email`, `cpf` e `senha`. O cadastro recebe o nível Estoquista e salva a
+senha com bcrypt. A coluna `funcionario.senha` deve ser `VARCHAR(255)`.
+
+Em bancos existentes, ajuste a coluna antes de iniciar a aplicação e converta as
+senhas antigas com `npm run migrate:passwords`:
+
+```sql
+ALTER TABLE funcionario MODIFY senha VARCHAR(255) NOT NULL;
+```
 
 ### Produtos
 
@@ -294,34 +324,30 @@ A API utiliza **JSON** para requisições e respostas.
 
 ## As rotas acima seguem a documentação da API do projeto.
 
-
-
-
-
 ### Requisitos funcionais
 
 Entre os principais requisitos funcionais estão:
 
-* Gerenciamento de produtos;
-* Cadastro de usuários;
-* Devolução de produtos;
-* Movimentação de produtos;
-* Formas de pagamento;
-* Acompanhamento das movimentações;
-* Sistema de login;
-* Notificações de estoque;
-* Restrições de usuários.
+- Gerenciamento de produtos;
+- Cadastro de usuários;
+- Devolução de produtos;
+- Movimentação de produtos;
+- Formas de pagamento;
+- Acompanhamento das movimentações;
+- Sistema de login;
+- Notificações de estoque;
+- Restrições de usuários.
 
 ### Requisitos não funcionais
 
 O projeto também possui requisitos relacionados a:
 
-* Acessibilidade;
-* Performance;
-* Responsividade;
-* Backup;
-* Segurança;
-* Controle de permissões.
+- Acessibilidade;
+- Performance;
+- Responsividade;
+- Backup;
+- Segurança;
+- Controle de permissões.
 
 O sistema deve possuir boa velocidade de resposta e a documentação estabelece como referência um carregamento de tela de até 2 segundos em conexões de 10 Mbps.
 
@@ -331,12 +357,12 @@ O sistema deve possuir boa velocidade de resposta e a documentação estabelece 
 
 Algumas das principais regras estabelecidas são:
 
-* O sistema não deve permitir compras para menores de idade;
-* Não é permitido pagamento em dinheiro;
-* O sistema suporta até 100 funcionários;
-* O estoque deve gerar notificações quando atingir uma quantidade mínima;
-* O cadastro de produtos é restrito a coordenadores e gerentes;
-* O acesso ao sistema é restrito de acordo com o cargo do funcionário.
+- O sistema não deve permitir compras para menores de idade;
+- Não é permitido pagamento em dinheiro;
+- O sistema suporta até 100 funcionários;
+- O estoque deve gerar notificações quando atingir uma quantidade mínima;
+- O cadastro de produtos é restrito a coordenadores e gerentes;
+- O acesso ao sistema é restrito de acordo com o cargo do funcionário.
 
 ---
 
@@ -346,17 +372,17 @@ O projeto possui uma etapa destinada à realização de testes para verificar o 
 
 Os testes devem verificar principalmente:
 
-* Cadastro;
-* Alteração;
-* Exclusão;
-* Consultas;
-* Login;
-* Controle de permissões;
-* Entrada e saída de produtos;
-* Movimentação de lotes;
-* Notificações;
-* Pagamentos;
-* Devoluções.
+- Cadastro;
+- Alteração;
+- Exclusão;
+- Consultas;
+- Login;
+- Controle de permissões;
+- Entrada e saída de produtos;
+- Movimentação de lotes;
+- Notificações;
+- Pagamentos;
+- Devoluções.
 
 ---
 
@@ -379,7 +405,6 @@ As primeiras versões foram utilizadas para estruturar a documentação, inserir
 O projeto possui documentação de requisitos, documentação da API e estrutura de banco de dados, além das funcionalidades planejadas para o sistema.
 
 ---
-
 
 ## 📜 Licença
 

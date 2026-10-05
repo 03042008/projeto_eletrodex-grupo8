@@ -2,13 +2,42 @@ const pool = require("../config/database");
 
 class FuncionarioRepository {
   async findAll() {
-    const [rows] = await pool.query("SELECT * FROM funcionario ORDER BY id_funcionario DESC");
+    const [rows] = await pool.query(
+      "SELECT id_funcionario, id_nivel, nome, email, cpf FROM funcionario ORDER BY id_funcionario DESC"
+    );
     return rows;
   }
 
   async findById(id) {
-    const [rows] = await pool.query("SELECT * FROM funcionario WHERE id_funcionario = ?", [id]);
+    const [rows] = await pool.query(
+      "SELECT id_funcionario, id_nivel, nome, email, cpf FROM funcionario WHERE id_funcionario = ?",
+      [id]
+    );
     return rows[0] || null;
+  }
+
+  async findByEmailOrCpf(email, cpf) {
+    const [rows] = await pool.query(
+      "SELECT id_funcionario, email, cpf FROM funcionario WHERE email = ? OR cpf = ? LIMIT 1",
+      [email, cpf]
+    );
+    return rows[0] || null;
+  }
+
+  async findByEmailForLogin(email) {
+    const [rows] = await pool.query(
+      "SELECT f.id_funcionario, f.id_nivel, f.nome, f.email, f.senha, n.descricao AS nivel FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel WHERE f.email = ? LIMIT 1",
+      [email]
+    );
+    return rows[0] || null;
+  }
+
+  async findNivelIdByDescricao(descricao) {
+    const [rows] = await pool.query(
+      "SELECT id_nivel FROM nivel WHERE descricao = ? LIMIT 1",
+      [descricao]
+    );
+    return rows[0]?.id_nivel || null;
   }
 
   async create(funcionarioData) {

@@ -19,31 +19,31 @@
 
     <p class="nav-group-label">Visão geral</p>
     <ul class="nav-list">
-      <li><a href="dashboard.html" data-page="painel"><span class="tick"></span>Painel</a></li>
-      <li><a href="critico.html" data-page="critico"><span class="tick"></span>Crítico</a></li>
-      <li><a href="#" data-page="notificacoes"><span class="tick"></span>Notificações de estoque</a></li>
+      <li><a href="dashboard.html" data-page="painel" data-roles="Administrador,Gerente,Estoquista,Vendedor"><span class="tick"></span>Painel</a></li>
+      <li><a href="critico.html" data-page="critico" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Crítico</a></li>
+      <li><a href="#" data-page="notificacoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Notificações de estoque</a></li>
     </ul>
 
     <p class="nav-group-label">Estoque</p>
     <ul class="nav-list">
-      <li><a href="produtos.html" data-page="produtos"><span class="tick"></span>Produtos</a></li>
-      <li><a href="#" data-page="lotes"><span class="tick"></span>Lotes</a></li>
-      <li><a href="#" data-page="movimentacao"><span class="tick"></span>Movimentação</a></li>
-      <li><a href="#" data-page="entrada"><span class="tick"></span>Entrada de produtos</a></li>
-      <li><a href="#" data-page="saida"><span class="tick"></span>Saída de produtos</a></li>
-      <li><a href="#" data-page="devolucoes"><span class="tick"></span>Devoluções</a></li>
+      <li><a href="produtos.html" data-page="produtos" data-roles="Administrador,Gerente,Estoquista,Vendedor"><span class="tick"></span>Produtos</a></li>
+      <li><a href="#" data-page="lotes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Lotes</a></li>
+      <li><a href="#" data-page="movimentacao" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Movimentação</a></li>
+      <li><a href="#" data-page="entrada" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
+      <li><a href="#" data-page="saida" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Saída de produtos</a></li>
+      <li><a href="#" data-page="devolucoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Devoluções</a></li>
     </ul>
 
     <p class="nav-group-label">Vendas</p>
     <ul class="nav-list">
-      <li><a href="#" data-page="vendas"><span class="tick"></span>Vendas</a></li>
-      <li><a href="#" data-page="pagamentos"><span class="tick"></span>Formas de pagamento</a></li>
+      <li><a href="#" data-page="vendas" data-roles="Administrador,Gerente,Vendedor"><span class="tick"></span>Vendas</a></li>
+      <li><a href="#" data-page="pagamentos" data-roles="Administrador,Gerente,Vendedor"><span class="tick"></span>Formas de pagamento</a></li>
     </ul>
 
     <p class="nav-group-label">Administração</p>
     <ul class="nav-list">
-      <li><a href="#" data-page="funcionarios"><span class="tick"></span>Funcionários</a></li>
-      <li><a href="#" data-page="niveis"><span class="tick"></span>Níveis de acesso</a></li>
+      <li><a href="#" data-page="funcionarios" data-roles="Administrador"><span class="tick"></span>Funcionários</a></li>
+      <li><a href="#" data-page="niveis" data-roles="Administrador"><span class="tick"></span>Níveis de acesso</a></li>
     </ul>
 
     <div class="sidebar-foot">
@@ -52,6 +52,7 @@
         <div class="user-name">Seu usuário</div>
         <div class="role-badge">Coordenador</div>
       </div>
+      <button type="button" class="logout-button" data-logout>Sair</button>
     </div>
   </aside>
 
@@ -126,7 +127,7 @@
         <section class="card" aria-labelledby="estoque-title">
           <div class="panel-header">
             <h2 id="estoque-title">Produtos em Estoque</h2>
-            <a href="#" class="view-all-link">Adicionar produto +</a>
+            <a href="#" class="view-all-link" data-roles="Administrador,Estoquista">Adicionar produto +</a>
           </div>
 
           <div class="table-container">
@@ -189,6 +190,7 @@
       </div>
     </main>
 
+<script src="./src/scripts/config.js"></script>
 <script src="./src/scripts/app.js"></script>
 </body>
 </html>

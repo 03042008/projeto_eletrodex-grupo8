@@ -137,9 +137,8 @@ button {
 .login-shell {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+  min-height: 100vh;
+  width: 100%;
 }
 
 .scan-panel {
@@ -151,6 +150,7 @@ button {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  min-height: 100vh;
 }
 
 .scan-content {
@@ -230,6 +230,7 @@ button {
   position: relative;
   background: var(--color-bg);
   overflow-y: auto;
+  min-height: 100vh;
 }
 
 .login-card {
@@ -255,6 +256,37 @@ button {
   font-size: 26px; 
   margin: 0 0 28px; 
 }
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin: 0 0 26px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.auth-tab {
+  min-height: 38px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.auth-tab:hover { color: var(--color-ink); }
+.auth-tab.active {
+  background: var(--color-surface);
+  color: var(--color-primary-strong);
+  box-shadow: 0 1px 3px rgba(47, 50, 72, 0.12);
+}
+
+.register-hint { margin: 14px 0 0; text-align: center; }
 
 .field { margin-bottom: 20px; }
 .field label {
@@ -335,6 +367,10 @@ button {
   margin-bottom: 18px;
 }
 .form-error.visible { display: block; }
+.form-error.success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
 
 /* ============================================================
    Dashboard Layout (SaaS Desktop)
@@ -414,6 +450,21 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.logout-button {
+  margin-left: auto;
+  padding: 6px 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #DDDEF0;
+  font-size: 12px;
+}
+
+.logout-button:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
 }
 
 .avatar {

@@ -3,6 +3,14 @@ USE eletrodex;
 
 
 -- ==========================
+-- TABELA NÍVEL
+-- ==========================
+CREATE TABLE nivel (
+    id_nivel INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(100) NOT NULL
+);
+
+-- ==========================
 -- TABELA FUNCIONÁRIO
 -- ==========================
 CREATE TABLE funcionario (
@@ -10,7 +18,7 @@ CREATE TABLE funcionario (
     id_nivel INT NOT NULL,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(20) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
     cpf VARCHAR(14) NOT NULL UNIQUE,
 
     FOREIGN KEY (id_nivel)
@@ -25,15 +33,6 @@ CREATE TABLE produto (
     nome VARCHAR(100) NOT NULL,
     descricao VARCHAR(100) NOT NULL
 );
-
--- ==========================
--- TABELA NÍVEL
--- ==========================
-CREATE TABLE nivel (
-    id_nivel INT AUTO_INCREMENT PRIMARY KEY,
-    descricao VARCHAR(100) NOT NULL
-);
-
 
 -- ==========================
 -- TABELA LOTE
@@ -147,9 +146,9 @@ VALUES('Administrador'),
 -- ==========================
 INSERT INTO funcionario
 (id_nivel, nome, email, senha, cpf)
-VALUES (1,'João Lucas','joao@eletrodex.com','123456','123.456.789-00'),
-(2,'Leticia','lele@eletrodex.com','654321','987.654.321-00'),
-(3,'Luiz','luiz@eletrodex.com','abc123','111.222.333-44');
+VALUES (1,'João Lucas','joao@eletrodex.com','$2b$12$eFVKWh4kAHMtTdRR7xSywObV/LdG1ecDhmHiwniXWMN2obMgPUUgq','123.456.789-00'),
+(2,'Leticia','lele@eletrodex.com','$2b$12$vbBswaPF28w7ho/dFo9bfu7dcafy6L7iUvJjwc4KSu2cDo73vyAgG','987.654.321-00'),
+(3,'Luiz','luiz@eletrodex.com','$2b$12$c./5WUYwxsNaBOy1kqrkzu3iktf3rad4YkOUxbRa0n6YPkcGKE8ai','111.222.333-44');
 
 -- ==========================
 -- PRODUTO
