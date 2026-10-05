@@ -312,6 +312,18 @@ O cadastro público atribui o cargo básico Funcionário. Somente Administrador 
 criar ou alterar cargos de outros funcionários; não é permitido alterar o próprio
 cargo.
 
+### Recuperação de senha
+
+`POST /funcionarios/solicitar-redefinicao-senha` recebe `{ "email": "..." }` e
+envia um link quando a conta existe. `POST /funcionarios/redefinir-senha` recebe
+`{ "token": "...", "senha": "..." }`. O token é de uso único, expira em 30 minutos
+e redefinir a senha revoga as sessões ativas do funcionário.
+
+Configure no `Back-End/.env`: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
+`SMTP_PASSWORD`, `SMTP_FROM` e `FRONTEND_URL` (por exemplo,
+`http://localhost:5173`). Sem essas variáveis, a API responde `503` e orienta o
+usuário a procurar o suporte de TI.
+
 Em bancos existentes, ajuste a coluna antes de iniciar a aplicação e converta as
 senhas antigas com `npm run migrate:passwords`:
 

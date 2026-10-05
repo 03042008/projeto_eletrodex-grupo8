@@ -32,6 +32,22 @@ class FuncionarioRepository {
     return rows[0] || null;
   }
 
+  async findForPasswordReset(email) {
+    const [rows] = await pool.query(
+      "SELECT id_funcionario, email FROM funcionario WHERE email = ? LIMIT 1",
+      [email]
+    );
+    return rows[0] || null;
+  }
+
+  async updatePasswordById(id, senhaHash) {
+    const [result] = await pool.query(
+      "UPDATE funcionario SET senha = ? WHERE id_funcionario = ?",
+      [senhaHash, id]
+    );
+    return result.affectedRows;
+  }
+
   async findNivelIdByDescricao(descricao) {
     const [rows] = await pool.query(
       "SELECT id_nivel FROM nivel WHERE descricao = ? LIMIT 1",

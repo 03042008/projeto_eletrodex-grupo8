@@ -4,6 +4,8 @@ const FuncionarioController = require("../controllers/FuncionarioController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
 router.post("/login", FuncionarioController.login);
+router.post("/solicitar-redefinicao-senha", FuncionarioController.solicitarRedefinicaoSenha);
+router.post("/redefinir-senha", FuncionarioController.redefinirSenha);
 router.post("/cadastro", FuncionarioController.cadastrarConta);
 router.get("/sessao", authenticate, FuncionarioController.sessaoAtual);
 router.post("/logout", authenticate, FuncionarioController.logout);
