@@ -204,6 +204,17 @@ As páginas devem seguir diretrizes de acessibilidade e permitir que suas funcio
 
 ## 🗄️ Banco de Dados
 
+## Front-End React
+
+O frontend foi migrado para React com Vite e React Router. Para executar a
+interface, rode `npm run dev:frontend` na raiz; o Vite informa a URL local
+(normalmente `http://localhost:5173`). Em outro terminal, inicie a API com
+`npm start`. A URL da API pode ser configurada com `VITE_API_URL`; por padrão,
+usa o host atual na porta `3000`.
+
+Para gerar os arquivos de produção, execute `npm run build:frontend`; a saída fica
+em `Front-End/dist`.
+
 O projeto utiliza **MySQL** para armazenamento dos dados.
 
 Entre as principais entidades estão:
@@ -246,14 +257,21 @@ A API utiliza **JSON** para requisições e respostas.
 
 O login utiliza `POST /funcionarios/login` com `email` e `senha`. As credenciais
 são verificadas com bcrypt; e-mail inexistente ou senha incorreta retorna `401`.
+<<<<<<< HEAD
 O token usado pela API é uma sessão opaca em memória, não um JWT assinado; o cargo
 é consultado novamente no banco para cada requisição protegida.
 O token Bearer retornado é exigido nas páginas internas e nas rotas protegidas.
+=======
+O projeto não usa JWT: mantém tokens Bearer aleatórios em memória por até 8 horas,
+revalidando o cargo atual no banco a cada requisição. Reiniciar o backend revoga
+as sessões ativas.
+>>>>>>> efe2ffa0668bcc858f870a2c29b62946f4718803
 
 ### Permissões por cargo
 
 | Cargo | Permissões |
 | ----- | ---------- |
+<<<<<<< HEAD
 | Administrador | Acesso total; gerencia funcionários e níveis, inclusive cargos de outros usuários |
 | Gerente | Gerencia produtos, lotes e estoque; consulta/insere movimentações; consulta funcionários, painel e relatórios; não altera níveis |
 | Estoquista | Consulta produtos; gerencia lotes; registra entradas e saídas; consulta movimentações; não gerencia produtos, funcionários ou níveis |
@@ -267,14 +285,50 @@ sessão válida e `403` quando o cargo não tem permissão. O backend aplica as 
 independentemente dos menus e botões ocultados pelo frontend. Reiniciar o backend
 encerra as sessões ativas. Vendas e formas de pagamento ainda são links de interface
 sem endpoints específicos implementados.
+=======
+| Administrador | Acesso total; gerencia funcionários, produtos, níveis, lotes e operações |
+| Gerente | Gerencia produtos/lotes, registra e consulta movimentações, consulta funcionários e painel; sem níveis/permissões |
+| Estoquista | Consulta produtos, gerencia lotes, registra entradas/saídas e consulta movimentações; sem funcionários/níveis |
+| Vendedor | Consulta produtos e registra/consulta somente as próprias saídas; sem lotes ou alteração direta de estoque |
+| Funcionário | Consulta básica de produtos; sem dashboard, funcionários, estoque, lotes ou níveis |
+
+O servidor retorna `401` quando falta uma sessão válida e `403` quando o cargo não
+tem permissão. O ID do responsável por uma saída vem da sessão, não do JSON enviado.
+As saídas antigas ficam com `id_funcionario` nulo e não aparecem na lista de um
+Vendedor. Vendas e formas de pagamento ainda não possuem módulo próprio; o endpoint
+de saída é a operação existente usada para registrar saídas de venda.
+>>>>>>> efe2ffa0668bcc858f870a2c29b62946f4718803
 
 Para criar uma conta pela tela pública, use `POST /funcionarios/cadastro` com
 `nome`, `email`, `cpf` e `senha`. O cadastro recebe o nível Funcionário e salva a
 senha com bcrypt. A coluna `funcionario.senha` deve ser `VARCHAR(255)`.
 
+<<<<<<< HEAD
 Em bancos existentes, execute a migração indicada acima antes de iniciar a aplicação.
 Se o banco ainda tiver senhas em texto puro, converta-as com
 `npm run migrate:passwords`.
+=======
+O cadastro público atribui o cargo básico Funcionário. Somente Administrador pode
+criar ou alterar cargos de outros funcionários; não é permitido alterar o próprio
+cargo.
+
+Em bancos existentes, ajuste a coluna antes de iniciar a aplicação e converta as
+senhas antigas com `npm run migrate:passwords`:
+
+```sql
+ALTER TABLE funcionario MODIFY senha VARCHAR(255) NOT NULL;
+ALTER TABLE saida
+	ADD COLUMN id_funcionario INT NULL,
+	ADD CONSTRAINT fk_saida_funcionario
+		FOREIGN KEY (id_funcionario) REFERENCES funcionario(id_funcionario);
+
+INSERT INTO nivel (descricao)
+SELECT 'Funcionário'
+WHERE NOT EXISTS (
+	SELECT 1 FROM nivel WHERE descricao = 'Funcionário'
+);
+```
+>>>>>>> efe2ffa0668bcc858f870a2c29b62946f4718803
 
 ### Produtos
 

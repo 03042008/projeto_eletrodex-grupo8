@@ -4,8 +4,12 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "lucide-react": "^1.52.0",
     "multer": "^2.2.0",
-    "mysql2": "^3.23.2"
+    "mysql2": "^3.23.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4"
   },
   "name": "projeto_eletrodex_le",
   "version": "1.0.0",
@@ -14,11 +18,16 @@
   "scripts": {
     "start": "node Back-End/src/server.js",
     "dev": "node --watch Back-End/src/server.js",
+    "dev:frontend": "vite Front-End --host 0.0.0.0",
+    "build:frontend": "vite build Front-End",
     "migrate:passwords": "node Back-End/migratePasswords.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "vite": "^8.3.2"
+  }
 }
