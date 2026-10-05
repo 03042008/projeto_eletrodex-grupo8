@@ -131,7 +131,9 @@
               <button type="submit" class="btn-primary">Entrar</button>
 
               <div class="login-foot">
-                <a href="#">Esqueci minha senha</a>
+                <button type="button" class="forgot-password-link" data-forgot-password>
+                  Esqueci minha senha
+                </button>
                 <span>Suporte: TI</span>
               </div>
             </form>
@@ -222,6 +224,41 @@
                 Novas contas recebem o perfil Estoquista.
               </p>
             </form>
+          </section>
+
+          <section data-password-panel="request" hidden>
+            <h1>Recuperar senha</h1>
+            <p class="field-hint password-recovery-copy">
+              Informe o e-mail da sua conta. Se estiver cadastrado, enviaremos um link válido por 30 minutos.
+            </p>
+            <form data-password-request-form novalidate>
+              <div class="form-error" role="alert" aria-live="polite"></div>
+              <div class="field">
+                <label for="recuperar-email">E-mail cadastrado</label>
+                <input type="email" id="recuperar-email" name="email" autocomplete="email" placeholder="nome@empresa.com" required maxlength="100">
+              </div>
+              <button type="submit" class="btn-primary">Enviar link de recuperação</button>
+            </form>
+            <button type="button" class="back-to-login" data-back-to-login>Voltar para entrar</button>
+          </section>
+
+          <section data-password-panel="reset" hidden>
+            <h1>Definir nova senha</h1>
+            <p class="field-hint password-recovery-copy">Escolha uma senha nova para sua conta.</p>
+            <form data-password-reset-form novalidate>
+              <div class="form-error" role="alert" aria-live="polite"></div>
+              <input type="hidden" name="token">
+              <div class="field">
+                <label for="nova-senha">Nova senha</label>
+                <input type="password" id="nova-senha" name="senha" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" minlength="8" maxlength="72" required>
+              </div>
+              <div class="field">
+                <label for="confirmar-nova-senha">Confirmar nova senha</label>
+                <input type="password" id="confirmar-nova-senha" name="confirmacao" autocomplete="new-password" placeholder="Digite a senha novamente" minlength="8" maxlength="72" required>
+              </div>
+              <button type="submit" class="btn-primary">Redefinir senha</button>
+            </form>
+            <button type="button" class="back-to-login" data-back-to-login>Voltar para entrar</button>
           </section>
         </div>
       </main>

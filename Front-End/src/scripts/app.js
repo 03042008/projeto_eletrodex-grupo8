@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAuthTabs();
   initLoginForm();
   initRegisterForm();
+  initPasswordRecovery();
   initLogout();
   initNotifications();
   markActiveNav();
@@ -323,6 +324,126 @@ function initRegisterForm() {
     } finally {
       button.disabled = false;
       button.textContent = 'Solicitar cadastro';
+    }
+  });
+}
+
+function initPasswordRecovery() {
+  const authTabs = document.querySelector('.auth-tabs');
+  const authPanels = document.querySelectorAll('[data-auth-panel]');
+  const recoveryPanels = document.querySelectorAll('[data-password-panel]');
+  const requestForm = document.querySelector('[data-password-request-form]');
+  const resetForm = document.querySelector('[data-password-reset-form]');
+  if (!authTabs || !requestForm || !resetForm) return;
+
+  const showRecovery = (panelName) => {
+    authTabs.hidden = Boolean(panelName);
+    authPanels.forEach((panel) => { panel.hidden = Boolean(panelName); });
+    recoveryPanels.forEach((panel) => {
+      panel.hidden = panel.dataset.passwordPanel !== panelName;
+    });
+  };
+
+  document.querySelector('[data-forgot-password]')?.addEventListener('click', () => {
+    showRecovery('request');
+    requestForm.reset();
+    requestForm.querySelector('.form-error').className = 'form-error';
+  });
+
+  document.querySelectorAll('[data-back-to-login]').forEach((button) => {
+    button.addEventListener('click', () => {
+      showRecovery(null);
+      document.querySelector('[data-auth-tab="login"]')?.click();
+      window.history.replaceState({}, '', window.location.pathname);
+    });
+  });
+
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (token) {
+    showRecovery('reset');
+    resetForm.elements.token.value = token;
+  }
+
+  requestForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const errorBox = requestForm.querySelector('.form-error');
+    const button = requestForm.querySelector('[type="submit"]');
+    const email = requestForm.elements.email.value.trim();
+    errorBox.className = 'form-error';
+
+    if (!email || !requestForm.elements.email.validity.valid) {
+      errorBox.textContent = 'Informe um e-mail válido.';
+      errorBox.classList.add('visible');
+      requestForm.elements.email.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Enviando...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/solicitar-redefinicao-senha`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.erro || 'Não foi possível solicitar a recuperação.');
+      errorBox.textContent = result.mensagem;
+      errorBox.classList.add('visible', 'success');
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Enviar link de recuperação';
+    }
+  });
+
+  resetForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const errorBox = resetForm.querySelector('.form-error');
+    const button = resetForm.querySelector('[type="submit"]');
+    const senha = resetForm.elements.senha.value;
+    const confirmacao = resetForm.elements.confirmacao.value;
+    errorBox.className = 'form-error';
+
+    if (senha.trim().length < 8 || new TextEncoder().encode(senha).length > 72) {
+      errorBox.textContent = 'A senha deve ter ao menos 8 caracteres e até 72 bytes.';
+      errorBox.classList.add('visible');
+      resetForm.elements.senha.focus();
+      return;
+    }
+    if (senha !== confirmacao) {
+      errorBox.textContent = 'As senhas informadas não coincidem.';
+      errorBox.classList.add('visible');
+      resetForm.elements.confirmacao.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Redefinindo...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/redefinir-senha`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: resetForm.elements.token.value, senha }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.erro || 'Não foi possível redefinir a senha.');
+      errorBox.textContent = result.mensagem;
+      errorBox.classList.add('visible', 'success');
+      resetForm.reset();
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Redefinir senha';
     }
   });
 }

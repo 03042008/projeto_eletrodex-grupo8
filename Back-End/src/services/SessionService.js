@@ -26,4 +26,12 @@ function destroy(token) {
   sessions.delete(token);
 }
 
-module.exports = { create, find, destroy };
+function destroyByUser(userId) {
+  for (const [token, session] of sessions.entries()) {
+    if (Number(session.user.id_funcionario) === Number(userId)) {
+      sessions.delete(token);
+    }
+  }
+}
+
+module.exports = { create, find, destroy, destroyByUser };

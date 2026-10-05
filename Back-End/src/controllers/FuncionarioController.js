@@ -1,4 +1,5 @@
 const FuncionarioService = require("../services/FuncionarioService");
+const PasswordResetService = require("../services/PasswordResetService");
 const SessionService = require("../services/SessionService");
 
 class FuncionarioController {
@@ -40,6 +41,32 @@ class FuncionarioController {
       const status = error.status || 500;
       const mensagem = status === 500
         ? "Não foi possível entrar. Tente novamente mais tarde."
+        : error.mensagem;
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
+  async solicitarRedefinicaoSenha(req, res) {
+    try {
+      const resultado = await PasswordResetService.solicitar(req.body?.email);
+      res.status(202).json(resultado);
+    } catch (error) {
+      const status = error.status || 500;
+      const mensagem = status >= 500
+        ? error.mensagem || "Não foi possível solicitar a redefinição agora."
+        : error.mensagem;
+      res.status(status).json({ erro: mensagem });
+    }
+  }
+
+  async redefinirSenha(req, res) {
+    try {
+      const resultado = await PasswordResetService.redefinir(req.body?.token, req.body?.senha);
+      res.status(200).json(resultado);
+    } catch (error) {
+      const status = error.status || 500;
+      const mensagem = status >= 500
+        ? "Não foi possível redefinir a senha. Tente novamente mais tarde."
         : error.mensagem;
       res.status(status).json({ erro: mensagem });
     }

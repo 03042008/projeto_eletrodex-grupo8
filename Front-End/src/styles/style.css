@@ -338,6 +338,19 @@ button {
 }
 .login-foot a { text-decoration: none; }
 .login-foot a:hover { text-decoration: underline; }
+.forgot-password-link,
+.back-to-login {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  text-align: left;
+}
+.forgot-password-link:hover,
+.back-to-login:hover { text-decoration: underline; }
+.back-to-login { margin-top: 18px; font-size: 13px; }
+.password-recovery-copy { margin: -12px 0 22px; }
 
 .contrast-toggle {
   position: absolute;
