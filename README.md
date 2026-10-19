@@ -8,6 +8,29 @@ O sistema foi planejado para uso **desktop** e possui diferentes níveis de aces
 
 ---
 
+## 🖥️ Front-end React
+
+O front-end utiliza React e Vite. Para iniciar o servidor de desenvolvimento:
+
+```bash
+npm run dev:frontend
+```
+
+O terminal informa o endereço local do Vite (normalmente `http://localhost:5173`).
+Para gerar e visualizar a versão de produção:
+
+```bash
+npm run build:frontend
+npm run preview:frontend
+```
+
+As telas de painel, produtos e estoque crítico ficam disponíveis em `/dashboard`,
+`/produtos` e `/critico`. Os endereços antigos com extensão `.html` continuam
+funcionando como rotas compatíveis. O formulário de login permanece demonstrativo
+e direciona ao painel; a integração com autenticação da API ainda não foi feita.
+
+---
+
 ## 👥 Equipe
 
 * João Lucas de Campos Gonçalves
