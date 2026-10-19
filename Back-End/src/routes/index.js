@@ -8,6 +8,7 @@ const nivelRoutes = require("./nivelRoutes");
 const movimentacaoLoteRoutes = require("./movimentacaoloteRoutes");
 const entradaRoutes = require("./entradaRoutes");
 const saidaRoutes = require("./saidaRoutes");
+const ajusteRoutes = require("./ajusteRoutes");
 
 // Rota de checagem do status da API Eletrodex
 router.get("/", (req, res) => {
@@ -24,5 +25,6 @@ router.use("/nivel", nivelRoutes);
 router.use("/movimentacao-lote", movimentacaoLoteRoutes);
 router.use("/entradas", entradaRoutes);
 router.use("/saidas", saidaRoutes);
+router.use("/ajustes", ajusteRoutes);
 
 module.exports = router;
