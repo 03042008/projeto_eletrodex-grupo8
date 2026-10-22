@@ -19,7 +19,7 @@
 
     <p class="nav-group-label">Visão geral</p>
     <ul class="nav-list">
-      <li><a href="dashboard.html" data-page="painel" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Painel</a></li>
+      <li><a href="dashboard.html" data-page="painel" data-roles="Administrador,Gerente"><span class="tick"></span>Painel</a></li>
       <li><a href="critico.html" data-page="critico" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Crítico</a></li>
       <li><a href="#" data-page="notificacoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Notificações de estoque</a></li>
     </ul>
@@ -30,7 +30,7 @@
       <li><a href="#" data-page="lotes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Lotes</a></li>
       <li><a href="#" data-page="movimentacao" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Movimentação</a></li>
       <li><a href="#" data-page="entrada" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
-      <li><a href="#" data-page="saida" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Saída de produtos</a></li>
+      <li><a href="#" data-page="saida" data-roles="Administrador,Gerente,Estoquista,Vendedor"><span class="tick"></span>Saída de produtos</a></li>
       <li><a href="#" data-page="devolucoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Devoluções</a></li>
     </ul>
 
@@ -51,6 +51,7 @@
       <div class="user-info">
         <div class="user-name">Seu usuário</div>
         <div class="role-badge">Coordenador</div>
+        <button type="button" class="profile-edit-button" data-profile-open>Editar perfil</button>
       </div>
       <button type="button" class="logout-button" data-logout>Sair</button>
     </div>
@@ -189,6 +190,21 @@
         </section>
       </div>
     </main>
+
+<dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-dialog-title">
+  <form data-profile-form novalidate>
+    <div class="profile-dialog-header">
+      <div><p class="eyebrow">Conta pessoal</p><h2 id="profile-dialog-title">Editar perfil</h2></div>
+      <button type="button" class="close-notifications-btn" data-profile-close aria-label="Fechar">×</button>
+    </div>
+    <div class="form-error" role="alert" aria-live="polite"></div>
+    <div class="field"><label for="perfil-nome">Nome completo</label><input id="perfil-nome" name="nome" type="text" maxlength="100" autocomplete="name" required></div>
+    <div class="field"><label for="perfil-email">E-mail</label><input id="perfil-email" name="email" type="email" maxlength="100" autocomplete="email" required></div>
+    <div class="field"><label for="perfil-cpf">CPF</label><input id="perfil-cpf" name="cpf" type="text" inputmode="numeric" maxlength="14" autocomplete="off" required></div>
+    <p class="field-hint">O cargo é gerenciado pelo Administrador e não pode ser alterado aqui.</p>
+    <div class="profile-dialog-actions"><button type="button" class="btn-secondary" data-profile-close>Cancelar</button><button type="submit" class="btn-primary">Salvar perfil</button></div>
+  </form>
+</dialog>
 
 <script src="./src/scripts/config.js"></script>
 <script src="./src/scripts/app.js"></script>

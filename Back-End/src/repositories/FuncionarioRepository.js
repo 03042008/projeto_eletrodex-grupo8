@@ -24,9 +24,17 @@ class FuncionarioRepository {
     return rows[0] || null;
   }
 
+  async findByEmailOrCpfForOtherUser(email, cpf, idFuncionario) {
+    const [rows] = await pool.query(
+      "SELECT id_funcionario FROM funcionario WHERE id_funcionario <> ? AND (email = ? OR cpf = ?) LIMIT 1",
+      [idFuncionario, email, cpf]
+    );
+    return rows[0] || null;
+  }
+
   async findByEmailForLogin(email) {
     const [rows] = await pool.query(
-      "SELECT f.id_funcionario, f.id_nivel, f.nome, f.email, f.senha, n.descricao AS nivel FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel WHERE f.email = ? LIMIT 1",
+      "SELECT f.id_funcionario, f.id_nivel, f.nome, f.email, f.cpf, f.senha, n.descricao AS nivel FROM funcionario f JOIN nivel n ON n.id_nivel = f.id_nivel WHERE f.email = ? LIMIT 1",
       [email]
     );
     return rows[0] || null;

@@ -2,16 +2,21 @@
 
 const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
 const PAGE_ROLES = {
-  painel: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
+  painel: ['Administrador', 'Gerente'],
   critico: ['Administrador', 'Gerente', 'Estoquista'],
   produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
 };
+
+function paginaInicialDoCargo(nivel) {
+  return ['Administrador', 'Gerente'].includes(nivel) ? 'dashboard.html' : 'produtos.html';
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!await enforceAuthentication()) return;
 
   initContrastToggle();
   initSidebar();
+  initProfileEditor();
   initAuthTabs();
   initLoginForm();
   initRegisterForm();
@@ -34,11 +39,11 @@ async function enforceAuthentication() {
     if (!response.ok) throw new Error('Sessão inválida.');
 
     const { usuario } = await response.json();
-    const user = { nome: usuario.nome, email: usuario.email, nivel: usuario.nivel };
+    const user = { nome: usuario.nome, email: usuario.email, cpf: usuario.cpf, nivel: usuario.nivel };
     sessionStorage.setItem('eletrodex-user', JSON.stringify(user));
 
     if (!PAGE_ROLES[document.body.dataset.page]?.includes(user.nivel)) {
-      window.location.replace('dashboard.html?acesso=negado');
+      window.location.replace(`${paginaInicialDoCargo(user.nivel)}?acesso=negado`);
       return false;
     }
 
@@ -55,6 +60,82 @@ function clearSession() {
   sessionStorage.removeItem('eletrodex-token');
   sessionStorage.removeItem('eletrodex-user');
   sessionStorage.removeItem('eletrodex-authenticated');
+}
+
+function initProfileEditor() {
+  const dialog = document.querySelector('[data-profile-dialog]');
+  const form = document.querySelector('[data-profile-form]');
+  if (!dialog || !form) return;
+
+  const errorBox = form.querySelector('.form-error');
+  const open = () => {
+    const user = JSON.parse(sessionStorage.getItem('eletrodex-user') || '{}');
+    form.elements.nome.value = user.nome || '';
+    form.elements.email.value = user.email || '';
+    form.elements.cpf.value = user.cpf || '';
+    errorBox.className = 'form-error';
+    dialog.showModal();
+  };
+
+  document.querySelectorAll('[data-profile-open]').forEach((button) => {
+    button.addEventListener('click', open);
+  });
+  dialog.querySelectorAll('[data-profile-close]').forEach((button) => {
+    button.addEventListener('click', () => dialog.close());
+  });
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const nome = form.elements.nome.value.trim();
+    const email = form.elements.email.value.trim();
+    const cpf = form.elements.cpf.value.trim();
+    const button = form.querySelector('[type="submit"]');
+    errorBox.className = 'form-error';
+
+    if (!nome || !email || !cpf || !form.elements.email.validity.valid || !cpfValido(cpf)) {
+      errorBox.textContent = !cpfValido(cpf)
+        ? 'Informe um CPF válido.'
+        : 'Informe nome, e-mail válido e CPF.';
+      errorBox.classList.add('visible');
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Salvando...';
+    try {
+      const response = await fetch(`${API_BASE_URL}/funcionarios/perfil`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('eletrodex-token')}`,
+        },
+        body: JSON.stringify({ nome, email, cpf }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.erro || 'Não foi possível atualizar o perfil.');
+
+      sessionStorage.setItem('eletrodex-user', JSON.stringify(result.usuario));
+      const name = document.querySelector('.user-name');
+      const avatar = document.querySelector('.sidebar-foot .avatar');
+      if (name) name.textContent = result.usuario.nome;
+      if (avatar) {
+        avatar.textContent = result.usuario.nome.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+      }
+      errorBox.textContent = result.mensagem || 'Perfil atualizado com sucesso.';
+      errorBox.classList.add('visible', 'success');
+    } catch (error) {
+      errorBox.textContent = error instanceof TypeError
+        ? 'Não foi possível conectar ao servidor.'
+        : error.message;
+      errorBox.classList.add('visible');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Salvar perfil';
+    }
+  });
 }
 
 function applyRoleAccess(user) {
@@ -219,7 +300,7 @@ function initLoginForm() {
 
       sessionStorage.setItem('eletrodex-token', resultado.token);
       sessionStorage.setItem('eletrodex-user', JSON.stringify(resultado.usuario));
-      window.location.href = 'dashboard.html';
+      window.location.href = paginaInicialDoCargo(resultado.usuario.nivel);
     } catch (error) {
       errorBox.textContent = error instanceof TypeError
         ? 'Não foi possível conectar ao servidor. Verifique se o backend está iniciado.'
