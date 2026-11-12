@@ -14,6 +14,8 @@ module.exports = {
         path.join(frontend, 'gestao-produtos.html'),
         path.join(frontend, 'setor-estoquista.html'),
         path.join(frontend, 'entrada-produtos.html'),
+        path.join(frontend, 'notificacoes.html'),
+        path.join(frontend, 'lotes.html'),
       ],
     },
   },

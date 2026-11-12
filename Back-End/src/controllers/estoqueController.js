@@ -1,6 +1,8 @@
 const pool = require('../config/database');
 
 const TIPOS_MOVIMENTACAO = new Set(['entrada', 'saida']);
+const LIMITE_ESTOQUE_BAIXO = 5;
+const LIMITE_ESTOQUE_CRITICO = 2;
 
 function validDate(value) {
   if (!value) return true;
@@ -19,6 +21,29 @@ function inventoryDateTime(value) {
 }
 
 module.exports = {
+  async listarAlertas(req, res) {
+    try {
+      const [rows] = await pool.query(`
+        SELECT p.id_produto, p.nome,
+          COALESCE(SUM(l.quantidade), 0) AS quantidade_estoque
+        FROM produto p
+        LEFT JOIN lote l ON l.id_produto = p.id_produto
+        GROUP BY p.id_produto, p.nome
+        HAVING quantidade_estoque <= ?
+        ORDER BY quantidade_estoque ASC, p.nome ASC
+      `, [LIMITE_ESTOQUE_BAIXO]);
+
+      const alertas = rows.map((produto) => ({
+        ...produto,
+        tipo: Number(produto.quantidade_estoque) <= LIMITE_ESTOQUE_CRITICO ? 'critico' : 'baixo',
+      }));
+      return res.status(200).json({ sucesso: true, limite: LIMITE_ESTOQUE_BAIXO, dados: alertas });
+    } catch (error) {
+      console.error('Erro ao listar alertas de estoque:', error);
+      return res.status(500).json({ erro: 'Não foi possível carregar os alertas de estoque.' });
+    }
+  },
+
   async listarMovimentacoes(req, res) {
     try {
       const [rows] = await pool.query(`

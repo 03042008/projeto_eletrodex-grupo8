@@ -3,78 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eletrodex — Entrada de produtos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <meta http-equiv="refresh" content="0;url=./setor-estoquista.html?tipo=entrada">
+  <title>Eletrodex — Operação do estoque</title>
   <link rel="stylesheet" href="./src/styles/style.css">
 </head>
-<body data-page="entrada-produtos">
-  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-  <div class="app-shell">
-    <div class="sidebar-scrim" data-sidebar-scrim></div>
-    <aside class="app-sidebar" id="app-sidebar" aria-label="Navegação principal">
-      <div class="brand-mark"><span>Eletrodex</span><span class="dot">●</span></div>
-      <p class="nav-group-label">Visão geral</p>
-      <ul class="nav-list">
-        <li><a href="dashboard.html" data-page="painel" data-roles="Administrador,Gerente"><span class="tick"></span>Painel</a></li>
-        <li><a href="produtos.html" data-page="produtos" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Produtos</a></li>
-        <li><a href="critico.html" data-page="critico" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Crítico</a></li>
-      </ul>
-      <p class="nav-group-label">Estoque</p>
-      <ul class="nav-list">
-        <li><a href="entrada-produtos.html" data-page="entrada-produtos" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
-        <li><a href="setor-estoquista.html" data-page="setor-estoquista" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Operação do estoque</a></li>
-        <li><a href="gestao-produtos.html" data-page="gestao-produtos" data-roles="Administrador,Gerente"><span class="tick"></span>Gestão de produtos</a></li>
-      </ul>
-      <div class="sidebar-foot">
-        <div class="avatar">SU</div>
-        <div class="user-info"><div class="user-name">Seu usuário</div><div class="role-badge">Cargo</div></div>
-        <button type="button" class="logout-button" data-logout>Sair</button>
-      </div>
-    </aside>
-    <div class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
-          <div><h1>Entrada de produtos</h1><p class="subtitle">Registre recebimentos e atualize o saldo do estoque</p></div>
-        </div>
-      </header>
-      <main class="app-content" id="conteudo">
-        <div class="content-container manager-product-layout">
-          <section class="card" aria-labelledby="entry-title">
-            <div class="panel-header"><h2 id="entry-title">Registrar recebimento</h2></div>
-            <form data-stock-entry-form>
-              <div class="form-error" role="alert" aria-live="polite"></div>
-              <div class="product-form-grid">
-                <div class="field"><label for="entrada-produto">Produto</label><select id="entrada-produto" name="id_produto" required><option value="">Carregando produtos...</option></select></div>
-                <div class="field"><label for="entrada-quantidade">Quantidade recebida</label><input id="entrada-quantidade" name="quantidade" type="number" min="1" step="1" required></div>
-                <div class="field"><label for="entrada-data">Data de entrada</label><input id="entrada-data" name="data_movimentacao" type="date" required></div>
-                <div class="field"><label for="entrada-setor">Setor</label><input id="entrada-setor" name="setor" maxlength="100" required></div>
-                <div class="field"><label for="entrada-localizacao">Localização</label><input id="entrada-localizacao" name="localizacao" maxlength="150" required></div>
-                <div class="field"><label for="entrada-conservacao">Conservação</label><input id="entrada-conservacao" name="estado_produto" maxlength="100" value="Novo" required></div>
-                <div class="field"><label for="entrada-revisao">Próxima revisão</label><input id="entrada-revisao" name="proxima_revisao" type="date"></div>
-                <div class="field field-wide"><label for="entrada-observacao">Observações / nota de recebimento</label><textarea id="entrada-observacao" name="observacao" maxlength="500" rows="3"></textarea></div>
-              </div>
-              <button class="btn-primary product-submit" type="submit">Registrar entrada</button>
-            </form>
-          </section>
-          <section class="card" aria-labelledby="entry-stock-title">
-            <div class="panel-header">
-              <h2 id="entry-stock-title">Estoque atual</h2>
-              <a class="view-all-link" href="setor-estoquista.html">Editar ou retirar produtos →</a>
-            </div>
-            <p class="form-error" data-entry-list-error role="alert" aria-live="polite"></p>
-            <div class="table-container">
-              <table class="data-table">
-                <thead><tr><th>Produto</th><th>Setor</th><th>Localização</th><th>Conservação</th><th>Saldo</th></tr></thead>
-                <tbody data-entry-stock-list><tr><td colspan="5">Carregando estoque...</td></tr></tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-      </main>
-    </div>
-  </div>
-  <script type="module" src="./src/scripts/app.js"></script>
+<body>
+  <p>Redirecionando para <a href="./setor-estoquista.html?tipo=entrada">Operação do estoque</a>...</p>
 </body>
 </html>

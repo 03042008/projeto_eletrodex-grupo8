@@ -4,6 +4,7 @@ const estoqueController = require('../controllers/estoqueController');
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
 
 router.use(authenticate);
+router.get('/alertas', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'), estoqueController.listarAlertas);
 router.use(authorize('Administrador', 'Gerente', 'Estoquista'));
 router.get('/movimentacoes', estoqueController.listarMovimentacoes);
 router.post('/movimentacoes', estoqueController.registrarMovimentacao);

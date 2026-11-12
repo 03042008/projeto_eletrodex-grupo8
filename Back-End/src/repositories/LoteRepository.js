@@ -2,7 +2,13 @@ const pool = require("../config/database");
 
 class LoteRepository {
   async findAll() {
-    const [rows] = await pool.query("SELECT * FROM lote ORDER BY id_lote DESC");
+    const [rows] = await pool.query(`
+      SELECT l.*, p.nome AS produto_nome, f.nome AS responsavel_nome
+      FROM lote l
+      JOIN produto p ON p.id_produto = l.id_produto
+      JOIN funcionario f ON f.id_funcionario = l.responsavel
+      ORDER BY l.id_lote DESC
+    `);
     return rows;
   }
 

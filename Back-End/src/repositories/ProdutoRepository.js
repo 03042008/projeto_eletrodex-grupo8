@@ -17,7 +17,9 @@ const ALLOWED_COLUMNS = [
 class ProdutoRepository {
     async findAll() {
         const [rows] = await pool.query(`
-            SELECT p.*, p.quantidade AS quantidade_estoque
+            SELECT p.*, COALESCE((
+                SELECT SUM(l.quantidade) FROM lote l WHERE l.id_produto = p.id_produto
+            ), 0) AS quantidade_estoque
             FROM produto p
             ORDER BY p.id_produto DESC
         `);
@@ -26,7 +28,9 @@ class ProdutoRepository {
 
     async findById(id) {
         const [rows] = await pool.query(`
-            SELECT p.*, p.quantidade AS quantidade_estoque
+            SELECT p.*, COALESCE((
+                SELECT SUM(l.quantidade) FROM lote l WHERE l.id_produto = p.id_produto
+            ), 0) AS quantidade_estoque
             FROM produto p
             WHERE p.id_produto = ?
         `, [id]);

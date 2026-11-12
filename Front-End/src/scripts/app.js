@@ -6,10 +6,11 @@ const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
 const PAGE_ROLES = {
   painel: ['Administrador', 'Gerente'],
   critico: ['Administrador', 'Gerente', 'Estoquista'],
+  lotes: ['Administrador', 'Gerente', 'Estoquista'],
+  notificacoes: ['Administrador', 'Gerente', 'Estoquista'],
   produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
   'gestao-produtos': ['Administrador', 'Gerente'],
   'setor-estoquista': ['Administrador', 'Gerente', 'Estoquista'],
-  'entrada-produtos': ['Administrador', 'Gerente', 'Estoquista'],
 };
 
 function paginaInicialDoCargo(nivel) {
@@ -29,9 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initLogout();
   initNotifications();
   markActiveNav();
+  initLotsManager();
   initManagerProducts();
   initStockOperations();
-  initStockEntry();
 });
 
 async function enforceAuthentication() {
@@ -47,7 +48,13 @@ async function enforceAuthentication() {
     if (!response.ok) throw new Error('Sessão inválida.');
 
     const { usuario } = await response.json();
-    const user = { nome: usuario.nome, email: usuario.email, cpf: usuario.cpf, nivel: usuario.nivel };
+    const user = {
+      id_funcionario: usuario.id_funcionario,
+      nome: usuario.nome,
+      email: usuario.email,
+      cpf: usuario.cpf,
+      nivel: usuario.nivel,
+    };
     sessionStorage.setItem('eletrodex-user', JSON.stringify(user));
 
     if (!PAGE_ROLES[document.body.dataset.page]?.includes(user.nivel)) {
@@ -532,51 +539,174 @@ function initPasswordRecovery() {
   });
 }
 
-/* ---------- notificações (popup) ---------- */
+/* ---------- central e popup de notificações ---------- */
 function initNotifications() {
   const notificationBtn = document.querySelector('.notification-btn');
   const notificationsPanel = document.getElementById('notifications-panel');
-  const closeBtn = document.querySelector('.close-notifications-btn');
+  const notificationsList = notificationsPanel?.querySelector('.notifications-list');
+  const notificationCenter = document.querySelector('[data-notification-center-list]');
+  const notificationSummary = document.querySelector('[data-notification-summary]');
+  const filter = document.querySelector('[data-notification-filter]');
+  const badge = notificationBtn?.querySelector('.badge');
+  const closeBtn = notificationsPanel?.querySelector('.close-notifications-btn');
+  const user = JSON.parse(sessionStorage.getItem('eletrodex-user') || '{}');
+  const storageKey = `eletrodex-notificacoes-lidas:${user.email || 'sessao'}`;
+  let notifications = [];
+  let readIds = new Set();
+  let currentFilter = 'todas';
 
-  if (!notificationBtn || !notificationsPanel) return;
+  if (!notificationsPanel && !notificationCenter) return;
 
-  // Abrir/fechar o painel
-  notificationBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isVisible = notificationsPanel.classList.contains('visible');
-    notificationsPanel.classList.toggle('visible', !isVisible);
-    notificationBtn.setAttribute('aria-expanded', String(!isVisible));
-  });
+  try {
+    const savedIds = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    if (Array.isArray(savedIds)) readIds = new Set(savedIds.map(String));
+  } catch {
+    localStorage.removeItem(storageKey);
+  }
 
-  // Fechar ao clicar no botão de close
-  closeBtn.addEventListener('click', () => {
-    notificationsPanel.classList.remove('visible');
-    notificationBtn.setAttribute('aria-expanded', 'false');
-  });
+  const saveReadIds = () => localStorage.setItem(storageKey, JSON.stringify([...readIds]));
 
-  // Fechar ao clicar fora
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.notifications-wrapper')) {
-      notificationsPanel.classList.remove('visible');
-      notificationBtn.setAttribute('aria-expanded', 'false');
-    }
-  });
+  const createNotification = (notification, compact = false) => {
+    const id = String(notification.id_produto);
+    const isRead = readIds.has(id);
+    const isCritical = notification.tipo === 'critico';
+    const item = document.createElement('article');
+    item.className = `notification-item ${isCritical ? 'notification-critical' : 'notification-warning'}${isRead ? ' is-read' : ' is-unread'}`;
+    const icon = document.createElement('span');
+    icon.className = 'notification-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = isCritical ? '⚠️' : '⊙';
 
-  // Fechar ao pressionar Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && notificationsPanel.classList.contains('visible')) {
-      notificationsPanel.classList.remove('visible');
-      notificationBtn.setAttribute('aria-expanded', 'false');
-    }
-  });
+    const content = document.createElement('div');
+    content.className = 'notification-content';
+    const title = document.createElement('div');
+    title.className = 'notification-title';
+    title.textContent = isCritical ? 'Estoque crítico' : 'Estoque baixo';
+    const message = document.createElement('div');
+    message.className = 'notification-message';
+    const quantity = Number(notification.quantidade_estoque);
+    message.textContent = `${notification.nome}: ${quantity} ${quantity === 1 ? 'unidade' : 'unidades'} disponíveis.`;
+    content.append(title, message);
 
-  const notificationItems = document.querySelectorAll('.notification-item');
-  notificationItems.forEach((item) => {
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
-      console.log('Notificação clicada:', item.querySelector('.notification-title').textContent);
+    const actions = document.createElement('div');
+    actions.className = `notification-actions${compact ? ' compact' : ''}`;
+    const readButton = document.createElement('button');
+    readButton.type = 'button';
+    readButton.className = 'notification-read-toggle';
+    readButton.textContent = isRead ? 'Marcar como não lida' : 'Marcar como lida';
+    readButton.setAttribute('aria-pressed', String(isRead));
+    readButton.addEventListener('click', () => {
+      if (readIds.has(id)) readIds.delete(id);
+      else readIds.add(id);
+      saveReadIds();
+      renderNotifications();
     });
+
+    const stockLink = document.createElement('a');
+    const canManageProducts = ['Administrador', 'Gerente'].includes(user.nivel);
+    stockLink.href = canManageProducts ? './gestao-produtos.html' : './setor-estoquista.html';
+    stockLink.textContent = 'Ver estoque';
+    actions.append(readButton, stockLink);
+    item.append(icon, content, actions);
+    return item;
+  };
+
+  const renderList = (container, items, compact = false) => {
+    container.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.className = 'notification-empty';
+      empty.textContent = notifications.length ? 'Nenhuma notificação neste filtro.' : 'Nenhum alerta de estoque baixo.';
+      container.append(empty);
+      return;
+    }
+    items.forEach((notification) => container.append(createNotification(notification, compact)));
+  };
+
+  function renderNotifications() {
+    const unreadCount = notifications.filter((item) => !readIds.has(String(item.id_produto))).length;
+    if (badge) {
+      badge.textContent = String(unreadCount);
+      badge.hidden = unreadCount === 0;
+    }
+    if (notificationBtn) {
+      notificationBtn.setAttribute('aria-label', `${unreadCount} notificações de estoque não lidas`);
+    }
+    if (notificationSummary) {
+      notificationSummary.textContent = `${notifications.length} alerta(s), ${unreadCount} não lido(s)`;
+    }
+
+    const filtered = notifications.filter((item) => {
+      const isRead = readIds.has(String(item.id_produto));
+      return currentFilter === 'todas' || (currentFilter === 'lidas' && isRead) || (currentFilter === 'nao-lidas' && !isRead);
+    });
+    if (notificationCenter) renderList(notificationCenter, filtered);
+    if (notificationsList) renderList(notificationsList, notifications.slice(0, 5), true);
+  }
+
+  const loadNotifications = async () => {
+    [notificationsList, notificationCenter].filter(Boolean).forEach((container) => {
+      const loading = document.createElement('p');
+      loading.className = 'notification-empty';
+      loading.textContent = 'Carregando notificações...';
+      container.replaceChildren(loading);
+    });
+
+    try {
+      const result = await apiRequest('/estoque/alertas');
+      notifications = Array.isArray(result.dados) ? result.dados : [];
+      const activeIds = new Set(notifications.map((item) => String(item.id_produto)));
+      readIds = new Set([...readIds].filter((id) => activeIds.has(id)));
+      saveReadIds();
+      renderNotifications();
+    } catch (error) {
+      notifications = [];
+      renderNotifications();
+      const message = error instanceof TypeError ? 'Não foi possível conectar ao servidor.' : error.message;
+      if (notificationSummary) notificationSummary.textContent = message;
+      [notificationsList, notificationCenter].filter(Boolean).forEach((container) => {
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'notification-empty';
+        errorMessage.textContent = message;
+        container.replaceChildren(errorMessage);
+      });
+    }
+  };
+
+  notificationBtn?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const isVisible = notificationsPanel.classList.toggle('visible');
+    notificationBtn.setAttribute('aria-expanded', String(isVisible));
   });
+  closeBtn?.addEventListener('click', () => {
+    notificationsPanel.classList.remove('visible');
+    notificationBtn?.setAttribute('aria-expanded', 'false');
+  });
+  document.addEventListener('click', (event) => {
+    if (notificationsPanel && !event.target.closest('.notifications-wrapper')) {
+      notificationsPanel.classList.remove('visible');
+      notificationBtn?.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && notificationsPanel?.classList.contains('visible')) {
+      notificationsPanel.classList.remove('visible');
+      notificationBtn?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  filter?.addEventListener('change', () => {
+    currentFilter = filter.value;
+    renderNotifications();
+  });
+  document.querySelector('[data-notification-refresh]')?.addEventListener('click', loadNotifications);
+  document.querySelector('[data-notification-mark-all]')?.addEventListener('click', () => {
+    readIds = new Set(notifications.map((item) => String(item.id_produto)));
+    saveReadIds();
+    renderNotifications();
+  });
+
+  loadNotifications();
 }
 
 async function apiRequest(path, options = {}) {
@@ -604,6 +734,192 @@ function makeTableCell(text) {
   const cell = document.createElement('td');
   cell.textContent = text ?? '—';
   return cell;
+}
+
+async function initLotsManager() {
+  const form = document.querySelector('[data-lote-form]');
+  const list = document.querySelector('[data-lote-list]');
+  if (!form || !list) return;
+
+  const productSelect = form.elements.id_produto;
+  const errorBox = form.querySelector('[data-lote-error]');
+  const listError = document.querySelector('[data-lote-list-error]');
+  const cancelButton = document.querySelector('[data-lote-cancel]');
+  const submitButton = form.querySelector('[type="submit"]');
+  const title = document.querySelector('#lote-form-title');
+  const user = JSON.parse(sessionStorage.getItem('eletrodex-user') || '{}');
+
+  const showMessage = (element, message, success = false) => {
+    element.textContent = message;
+    element.classList.toggle('visible', Boolean(message));
+    element.classList.toggle('success', success);
+  };
+
+  const dateOnly = (value) => {
+    if (!(value instanceof Date)) return String(value ?? '').slice(0, 10);
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const renderErrorRow = (message) => {
+    const row = document.createElement('tr');
+    const cell = makeTableCell(message);
+    cell.colSpan = 9;
+    row.append(cell);
+    list.replaceChildren(row);
+  };
+
+  const loadProducts = async () => {
+    const result = await apiRequest('/produtos');
+    const products = Array.isArray(result.dados) ? result.dados : [];
+    productSelect.replaceChildren();
+    const prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = products.length ? 'Selecione um produto' : 'Nenhum produto cadastrado';
+    productSelect.append(prompt);
+    products.forEach((product) => {
+      const option = document.createElement('option');
+      option.value = product.id_produto;
+      option.textContent = product.nome;
+      productSelect.append(option);
+    });
+    productSelect.disabled = products.length === 0;
+  };
+
+  const loadLots = async () => {
+    showMessage(listError, '');
+    try {
+      const result = await apiRequest('/lotes');
+      const lots = Array.isArray(result.dados) ? result.dados : [];
+      list.replaceChildren();
+      if (!lots.length) {
+        renderErrorRow('Nenhum lote cadastrado.');
+        return;
+      }
+
+      lots.forEach((lot) => {
+        const row = document.createElement('tr');
+        row.append(makeTableCell(`#${lot.id_lote}`));
+        row.append(makeTableCell(lot.produto_nome || `Produto #${lot.id_produto}`));
+        row.append(makeTableCell(Number(lot.quantidade).toLocaleString('pt-BR')));
+        row.append(makeTableCell(lot.localizacao));
+        row.append(makeTableCell(dateOnly(lot.data_entrada)));
+        row.append(makeTableCell(lot.responsavel_nome || `Funcionário #${lot.responsavel}`));
+        row.append(makeTableCell(String(lot.nota_fiscal)));
+        row.append(makeTableCell(Number(lot.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })));
+
+        const actions = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'text-button';
+        editButton.textContent = 'Editar';
+        editButton.addEventListener('click', () => {
+          form.elements.id_lote.value = lot.id_lote;
+          productSelect.value = lot.id_produto;
+          form.elements.quantidade.value = lot.quantidade;
+          form.elements.localizacao.value = lot.localizacao;
+          form.elements.data_entrada.value = dateOnly(lot.data_entrada);
+          form.elements.nota_fiscal.value = lot.nota_fiscal;
+          form.elements.valor.value = lot.valor;
+          title.textContent = `Editar lote #${lot.id_lote}`;
+          submitButton.textContent = 'Salvar alterações';
+          cancelButton.hidden = false;
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'text-button danger-button';
+        deleteButton.textContent = 'Excluir';
+        deleteButton.addEventListener('click', async () => {
+          if (!window.confirm(`Deseja excluir o lote #${lot.id_lote}?`)) return;
+          deleteButton.disabled = true;
+          try {
+            const result = await apiRequest(`/lotes/${lot.id_lote}`, { method: 'DELETE' });
+            showMessage(errorBox, result.mensagem || 'Lote excluído.', true);
+            await loadLots();
+          } catch (error) {
+            showMessage(errorBox, error.message);
+          } finally {
+            deleteButton.disabled = false;
+          }
+        });
+
+        actions.append(editButton, deleteButton);
+        row.append(actions);
+        list.append(row);
+      });
+    } catch (error) {
+      renderErrorRow(error.message);
+      showMessage(listError, error.message);
+    }
+  };
+
+  const resetForm = () => {
+    form.reset();
+    form.elements.id_lote.value = '';
+    form.elements.responsavel.value = user.id_funcionario || '';
+    title.textContent = 'Cadastrar lote';
+    submitButton.textContent = 'Cadastrar lote';
+    cancelButton.hidden = true;
+    showMessage(errorBox, '');
+  };
+
+  cancelButton.addEventListener('click', resetForm);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showMessage(errorBox, '');
+    const lotId = form.elements.id_lote.value;
+    const quantity = Number(form.elements.quantidade.value);
+    const fiscalNote = Number(form.elements.nota_fiscal.value);
+    const value = Number(form.elements.valor.value);
+    if (!user.id_funcionario) {
+      showMessage(errorBox, 'Não foi possível identificar o funcionário responsável. Entre novamente no sistema.');
+      return;
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0 || !Number.isSafeInteger(fiscalNote) || fiscalNote <= 0 || !Number.isFinite(value) || value < 0) {
+      showMessage(errorBox, 'Confira a quantidade, a nota fiscal e o valor informado.');
+      return;
+    }
+
+    const payload = {
+      id_produto: Number(productSelect.value),
+      quantidade: quantity,
+      localizacao: form.elements.localizacao.value.trim(),
+      data_entrada: form.elements.data_entrada.value,
+      nota_fiscal: fiscalNote,
+      valor,
+    };
+    if (!lotId) payload.responsavel = Number(user.id_funcionario);
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Salvando...';
+    try {
+      const result = await apiRequest(lotId ? `/lotes/${lotId}` : '/lotes', {
+        method: lotId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload),
+      });
+      resetForm();
+      showMessage(errorBox, result.mensagem || (lotId ? 'Lote atualizado.' : 'Lote cadastrado.'), true);
+      await loadLots();
+    } catch (error) {
+      showMessage(errorBox, error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = form.elements.id_lote.value ? 'Salvar alterações' : 'Cadastrar lote';
+    }
+  });
+
+  form.elements.responsavel.value = user.id_funcionario || '';
+  try {
+    await loadProducts();
+  } catch (error) {
+    productSelect.disabled = true;
+    showMessage(errorBox, error.message);
+  }
+  await loadLots();
 }
 
 function productImageUrl(imagePath) {
@@ -779,6 +1095,8 @@ async function initStockOperations() {
   if (!form || !productsList || !movementsList) return;
 
   const productSelect = form.elements.id_produto;
+  const requestedType = new URLSearchParams(window.location.search).get('tipo');
+  if (requestedType === 'entrada' || requestedType === 'saida') form.elements.tipo.value = requestedType;
   const formError = form.querySelector('.form-error');
   const productsError = document.querySelector('[data-stock-list-error]');
   const movementsError = document.querySelector('[data-movement-list-error]');
@@ -978,107 +1296,3 @@ async function initStockOperations() {
   }
 }
 
-async function initStockEntry() {
-  const form = document.querySelector('[data-stock-entry-form]');
-  const productsList = document.querySelector('[data-entry-stock-list]');
-  if (!form || !productsList) return;
-
-  const productSelect = form.elements.id_produto;
-  const errorBox = form.querySelector('.form-error');
-  const listError = document.querySelector('[data-entry-list-error]');
-  const submitButton = form.querySelector('[type="submit"]');
-  const entryDate = form.elements.data_movimentacao;
-  const today = new Date();
-  const localToday = [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, '0'),
-    String(today.getDate()).padStart(2, '0'),
-  ].join('-');
-  entryDate.value = localToday;
-
-  let products = [];
-  const loadProducts = async () => {
-    showFormMessage(listError, '');
-    const result = await apiRequest('/produtos');
-    products = Array.isArray(result.dados) ? result.dados : [];
-    productSelect.replaceChildren();
-    const prompt = document.createElement('option');
-    prompt.value = '';
-    prompt.textContent = products.length ? 'Selecione um produto' : 'Cadastre um produto antes da entrada';
-    productSelect.append(prompt);
-    products.forEach((product) => {
-      const option = document.createElement('option');
-      option.value = product.id_produto;
-      option.textContent = `${product.nome} — saldo ${product.quantidade ?? product.quantidade_estoque ?? 0}`;
-      productSelect.append(option);
-    });
-
-    productsList.replaceChildren();
-    if (!products.length) {
-      const row = document.createElement('tr');
-      const cell = makeTableCell('Nenhum produto cadastrado. Peça ao gerente para cadastrar o produto primeiro.');
-      cell.colSpan = 5;
-      row.append(cell);
-      productsList.append(row);
-      return;
-    }
-    products.forEach((product) => {
-      const row = document.createElement('tr');
-      row.append(makeTableCell(product.nome));
-      row.append(makeTableCell(product.setor));
-      row.append(makeTableCell(product.localizacao));
-      row.append(makeTableCell(product.estado_produto));
-      row.append(makeTableCell(String(product.quantidade ?? product.quantidade_estoque ?? 0)));
-      productsList.append(row);
-    });
-  };
-
-  productSelect.addEventListener('change', () => {
-    const product = products.find((item) => String(item.id_produto) === productSelect.value);
-    if (!product) return;
-    form.elements.setor.value = product.setor || '';
-    form.elements.localizacao.value = product.localizacao || '';
-    form.elements.estado_produto.value = product.estado_produto || 'Novo';
-    form.elements.proxima_revisao.value = product.proxima_revisao
-      ? String(product.proxima_revisao).slice(0, 10)
-      : '';
-  });
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    showFormMessage(errorBox, '');
-    const payload = Object.fromEntries(new FormData(form).entries());
-    payload.id_produto = Number(payload.id_produto);
-    payload.quantidade = Number(payload.quantidade);
-    payload.tipo = 'entrada';
-    submitButton.disabled = true;
-    submitButton.textContent = 'Registrando...';
-    try {
-      const result = await apiRequest('/estoque/movimentacoes', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-      form.reset();
-      entryDate.value = localToday;
-      form.elements.estado_produto.value = 'Novo';
-      showFormMessage(errorBox, result.mensagem || 'Entrada registrada com sucesso.', true);
-      await loadProducts();
-    } catch (error) {
-      showFormMessage(errorBox, error.message);
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = 'Registrar entrada';
-    }
-  });
-
-  try {
-    await loadProducts();
-  } catch (error) {
-    showFormMessage(listError, error.message);
-    const row = document.createElement('tr');
-    const cell = makeTableCell(error.message);
-    cell.colSpan = 5;
-    row.append(cell);
-    productsList.replaceChildren(row);
-  }
-}

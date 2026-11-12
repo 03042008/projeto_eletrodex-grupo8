@@ -333,6 +333,21 @@ button {
   outline: none;
 }
 .field input::placeholder { color: var(--color-muted); }
+.field select {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+}
+.field select:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
 .field-hint { font-size: 12px; color: var(--color-muted); margin-top: 6px; line-height: 1.4; }
 
 .btn-primary {
@@ -1320,6 +1335,64 @@ a.kpi-grid:active {
 .view-all-notifications:hover {
   opacity: 0.8;
   text-decoration: underline;
+}
+
+.notification-empty {
+  margin: 0;
+  padding: 20px 16px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.notification-item.is-read .notification-content { opacity: 0.62; }
+.notification-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.notification-actions a,
+.notification-read-toggle {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.notification-actions a:hover,
+.notification-read-toggle:hover { text-decoration: underline; }
+.notification-read-toggle { color: var(--color-muted); }
+
+.notification-page-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.notification-page-controls select {
+  min-height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+}
+.notification-center-list .notification-item { cursor: default; }
+.notification-center-list .notification-actions { min-width: 220px; }
+
+@media (max-width: 640px) {
+  .notification-page-controls { align-items: stretch; flex-direction: column; }
+  .notification-page-controls select,
+  .notification-page-controls button { width: 100%; }
+  .notification-center-list .notification-item { align-items: flex-start; }
+  .notification-center-list .notification-actions { width: 100%; margin-left: 38px; justify-content: flex-start; }
 }
 
 /* Overlay para fechar o popup quando clicar fora */

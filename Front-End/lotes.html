@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eletrodex — Lotes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles/style.css">
+</head>
+<body data-page="lotes">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <div class="sidebar-scrim" data-sidebar-scrim></div>
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Navegação principal">
+      <div class="brand-mark"><span>Eletrodex</span><span class="dot">●</span></div>
+      <p class="nav-group-label">Visão geral</p>
+      <ul class="nav-list">
+        <li><a href="./dashboard.html" data-page="painel" data-roles="Administrador,Gerente"><span class="tick"></span>Painel</a></li>
+        <li><a href="./critico.html" data-page="critico" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Crítico</a></li>
+        <li><a href="./notificacoes.html" data-page="notificacoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Notificações de estoque</a></li>
+      </ul>
+      <p class="nav-group-label">Estoque</p>
+      <ul class="nav-list">
+        <li><a href="./produtos.html" data-page="produtos" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Produtos</a></li>
+        <li><a href="./lotes.html" data-page="lotes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Lotes</a></li>
+        <li><a href="./setor-estoquista.html" data-page="setor-estoquista" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Operação do estoque</a></li>
+      </ul>
+      <div class="sidebar-foot">
+        <div class="avatar">SU</div>
+        <div class="user-info"><div class="user-name">Seu usuário</div><div class="role-badge">Cargo</div></div>
+        <button type="button" class="logout-button" data-logout>Sair</button>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
+          <div><h1>Gestão de lotes</h1><p class="subtitle">Entrada, localização e valor dos produtos recebidos</p></div>
+        </div>
+      </header>
+      <main class="app-content" id="conteudo">
+        <div class="content-container manager-product-layout">
+          <section class="card" aria-labelledby="lote-form-title">
+            <div class="panel-header">
+              <h2 id="lote-form-title">Cadastrar lote</h2>
+              <button type="button" class="text-button" data-lote-cancel hidden>Cancelar edição</button>
+            </div>
+            <form data-lote-form>
+              <div class="form-error" data-lote-error role="alert" aria-live="polite"></div>
+              <input type="hidden" name="id_lote">
+              <input type="hidden" name="responsavel">
+              <div class="product-form-grid">
+                <div class="field"><label for="lote-produto">Produto</label><select id="lote-produto" name="id_produto" required><option value="">Carregando produtos...</option></select></div>
+                <div class="field"><label for="lote-quantidade">Quantidade</label><input id="lote-quantidade" name="quantidade" type="number" min="1" step="1" required></div>
+                <div class="field"><label for="lote-localizacao">Localização</label><input id="lote-localizacao" name="localizacao" maxlength="100" required></div>
+                <div class="field"><label for="lote-data">Data de entrada</label><input id="lote-data" name="data_entrada" type="date" required></div>
+                <div class="field"><label for="lote-nota-fiscal">Nota fiscal</label><input id="lote-nota-fiscal" name="nota_fiscal" type="number" min="1" step="1" required></div>
+                <div class="field"><label for="lote-valor">Valor total (R$)</label><input id="lote-valor" name="valor" type="number" min="0" step="0.01" required></div>
+              </div>
+              <button class="btn-primary product-submit" type="submit">Cadastrar lote</button>
+            </form>
+          </section>
+
+          <section class="card" aria-labelledby="lote-list-title">
+            <div class="panel-header"><h2 id="lote-list-title">Lotes cadastrados</h2></div>
+            <p class="form-error" data-lote-list-error role="alert" aria-live="polite"></p>
+            <div class="table-container">
+              <table class="data-table">
+                <thead><tr><th>Lote</th><th>Produto</th><th>Quantidade</th><th>Localização</th><th>Entrada</th><th>Responsável</th><th>Nota fiscal</th><th>Valor</th><th>Ações</th></tr></thead>
+                <tbody data-lote-list><tr><td colspan="9">Carregando lotes...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="./src/scripts/app.js"></script>
+</body>
+</html>
