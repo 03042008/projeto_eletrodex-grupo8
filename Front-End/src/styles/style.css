@@ -52,7 +52,9 @@ body.high-contrast {
 body.high-contrast .card,
 body.high-contrast .app-sidebar,
 body.high-contrast .login-card,
-body.high-contrast input {
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
   border: 1px solid var(--color-line);
 }
 
@@ -306,7 +308,26 @@ button {
   height: 42px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+}
+.field select { min-height: 42px; }
+.field textarea { resize: vertical; }
 .field input:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.field select:focus,
+.field textarea:focus {
   border-color: var(--color-primary);
   box-shadow: var(--focus-ring);
   outline: none;
@@ -795,6 +816,63 @@ a.kpi-grid:active {
 .pill.ok { background: var(--color-success-bg); color: var(--color-success); }
 .pill.warn { background: var(--color-warning-bg); color: var(--color-warning); }
 .pill.danger { background: var(--color-danger-bg); color: var(--color-danger); }
+
+.manager-product-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.product-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+.product-form-grid .field-wide {
+  grid-column: 1 / -1;
+}
+
+.product-submit {
+  margin-top: 8px;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+.danger-button {
+  color: var(--color-danger);
+}
+
+.data-table td .text-button + .text-button {
+  margin-left: 6px;
+}
+
+[data-product-list] td,
+[data-stock-products] td,
+[data-stock-movements] td {
+  min-width: 100px;
+}
+
+@media (max-width: 600px) {
+  .product-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-form-grid .field-wide {
+    grid-column: auto;
+  }
+}
 
 /* ============================================================
    RESPONSIVIDADE (Tablets e Celulares)

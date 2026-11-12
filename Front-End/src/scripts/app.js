@@ -1,10 +1,14 @@
 // Eletrodex — interações do front-end e integração com a API.
 
+import './config.js';
+
 const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
 const PAGE_ROLES = {
   painel: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
   critico: ['Administrador', 'Gerente', 'Estoquista'],
   produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
+  'gestao-produtos': ['Administrador', 'Gerente'],
+  'setor-estoquista': ['Administrador', 'Gerente', 'Estoquista'],
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -19,6 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   initLogout();
   initNotifications();
   markActiveNav();
+  initManagerProducts();
+  initStockOperations();
 });
 
 async function enforceAuthentication() {
@@ -470,6 +476,330 @@ function initNotifications() {
     if (!e.target.closest('.notifications-wrapper')) {
       notificationsPanel.classList.remove('visible');
       notificationBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    async function apiRequest(path, options = {}) {
+      const token = sessionStorage.getItem('eletrodex-token');
+      const headers = { Authorization: `Bearer ${token}`, ...(options.headers || {}) };
+      if (options.body && !(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.erro || result.mensagem || result.error || 'Não foi possível concluir a operação.');
+      }
+      return result;
+    }
+
+    function showFormMessage(element, message, success = false) {
+      element.textContent = message;
+      element.classList.toggle('visible', Boolean(message));
+      element.classList.toggle('success', success);
+    }
+
+    function makeTableCell(text) {
+      const cell = document.createElement('td');
+      cell.textContent = text ?? '—';
+      return cell;
+    }
+
+    function productImageUrl(imagePath) {
+      if (!imagePath) return '';
+      return `${API_BASE_URL}/${String(imagePath).replace(/^\/+/, '')}`;
+    }
+
+    async function initManagerProducts() {
+      const form = document.querySelector('[data-product-form]');
+      const list = document.querySelector('[data-product-list]');
+      if (!form || !list) return;
+
+      const errorBox = form.querySelector('.form-error');
+      const listError = document.querySelector('[data-product-list-error]');
+      const cancelButton = document.querySelector('[data-product-cancel]');
+      const submitButton = form.querySelector('[type="submit"]');
+
+      const loadProducts = async () => {
+        showFormMessage(listError, '');
+        try {
+          const result = await apiRequest('/produtos');
+          renderProducts(Array.isArray(result.dados) ? result.dados : []);
+        } catch (error) {
+          list.replaceChildren();
+          const row = document.createElement('tr');
+          const cell = makeTableCell(error.message);
+          cell.colSpan = 7;
+          row.append(cell);
+          list.append(row);
+          showFormMessage(listError, error.message);
+        }
+      };
+
+      const renderProducts = (products) => {
+        list.replaceChildren();
+        if (!products.length) {
+          const row = document.createElement('tr');
+          const cell = makeTableCell('Nenhum produto cadastrado.');
+          cell.colSpan = 7;
+          row.append(cell);
+          list.append(row);
+          return;
+        }
+
+        products.forEach((product) => {
+          const row = document.createElement('tr');
+          row.append(makeTableCell(product.nome));
+          row.append(makeTableCell(`${product.setor || '—'} / ${product.localizacao || '—'}`));
+          row.append(makeTableCell(`${product.modelo || product.descricao || '—'} / ${product.tamanho || '—'}`));
+          row.append(makeTableCell(Number(product.preco || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })));
+          row.append(makeTableCell(String(product.quantidade ?? product.quantidade_estoque ?? 0)));
+
+          const imageCell = document.createElement('td');
+          if (product.imagem) {
+            const download = document.createElement('a');
+            download.href = productImageUrl(product.imagem);
+            download.download = product.imagem.split('/').pop() || 'imagem-produto';
+            download.textContent = 'Baixar imagem';
+            download.setAttribute('aria-label', `Baixar imagem de ${product.nome}`);
+            download.addEventListener('click', async (event) => {
+              event.preventDefault();
+              try {
+                const response = await fetch(download.href);
+                if (!response.ok) throw new Error('Não foi possível baixar a imagem.');
+                const image = URL.createObjectURL(await response.blob());
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = download.download;
+                link.click();
+                window.setTimeout(() => URL.revokeObjectURL(image), 1000);
+              } catch (error) {
+                showFormMessage(errorBox, error.message);
+              }
+            });
+            imageCell.append(download);
+          } else {
+            imageCell.textContent = 'Sem imagem';
+          }
+          row.append(imageCell);
+
+          const actions = document.createElement('td');
+          const edit = document.createElement('button');
+          edit.type = 'button';
+          edit.className = 'text-button';
+          edit.textContent = 'Editar';
+          edit.addEventListener('click', () => {
+            form.elements.id_produto.value = product.id_produto;
+            form.elements.nome.value = product.nome || '';
+            form.elements.modelo.value = product.modelo || product.descricao || '';
+            form.elements.setor.value = product.setor || '';
+            form.elements.tamanho.value = product.tamanho || '';
+            form.elements.preco.value = product.preco ?? 0;
+            form.elements.quantidade.value = product.quantidade ?? product.quantidade_estoque ?? 0;
+            form.elements.localizacao.value = product.localizacao || '';
+            form.elements.estado_produto.value = product.estado_produto || 'Novo';
+            form.elements.proxima_revisao.value = product.proxima_revisao
+              ? String(product.proxima_revisao).slice(0, 10)
+              : '';
+            form.elements.imagem.value = '';
+            document.querySelector('#product-form-title').textContent = 'Atualizar produto';
+            submitButton.textContent = 'Salvar alterações';
+            cancelButton.hidden = false;
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'text-button danger-button';
+          remove.textContent = 'Excluir';
+          remove.addEventListener('click', async () => {
+            if (!window.confirm(`Deseja excluir "${product.nome}"?`)) return;
+            remove.disabled = true;
+            try {
+              await apiRequest(`/produtos/${product.id_produto}`, { method: 'DELETE' });
+              showFormMessage(errorBox, 'Produto excluído.', true);
+              await loadProducts();
+            } catch (error) {
+              showFormMessage(errorBox, error.message);
+            } finally {
+              remove.disabled = false;
+            }
+          });
+          actions.append(edit, remove);
+          row.append(actions);
+          list.append(row);
+        });
+      };
+
+      const resetForm = () => {
+        form.reset();
+        form.elements.id_produto.value = '';
+        form.elements.estado_produto.value = 'Novo';
+        document.querySelector('#product-form-title').textContent = 'Cadastrar produto';
+        submitButton.textContent = 'Cadastrar produto';
+        cancelButton.hidden = true;
+        showFormMessage(errorBox, '');
+      };
+
+      cancelButton.addEventListener('click', resetForm);
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        showFormMessage(errorBox, '');
+        const productId = form.elements.id_produto.value;
+        const payload = new FormData(form);
+        payload.set('descricao', form.elements.modelo.value.trim());
+        if (!form.elements.imagem.files.length) payload.delete('imagem');
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'Salvando...';
+        try {
+          await apiRequest(productId ? `/produtos/${productId}` : '/produtos', {
+            method: productId ? 'PUT' : 'POST',
+            body: payload,
+          });
+          resetForm();
+          showFormMessage(errorBox, productId ? 'Produto atualizado com sucesso.' : 'Produto cadastrado com sucesso.', true);
+          await loadProducts();
+        } catch (error) {
+          showFormMessage(errorBox, error.message);
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = form.elements.id_produto.value ? 'Salvar alterações' : 'Cadastrar produto';
+        }
+      });
+
+      await loadProducts();
+    }
+
+    async function initStockOperations() {
+      const form = document.querySelector('[data-stock-form]');
+      const productsList = document.querySelector('[data-stock-products]');
+      const movementsList = document.querySelector('[data-stock-movements]');
+      if (!form || !productsList || !movementsList) return;
+
+      const productSelect = form.elements.id_produto;
+      const formError = form.querySelector('.form-error');
+      const productsError = document.querySelector('[data-stock-list-error]');
+      const movementsError = document.querySelector('[data-movement-list-error]');
+      const submitButton = form.querySelector('[type="submit"]');
+      let products = [];
+
+      const loadProducts = async () => {
+        showFormMessage(productsError, '');
+        const result = await apiRequest('/produtos');
+        products = Array.isArray(result.dados) ? result.dados : [];
+        productSelect.replaceChildren();
+        const prompt = document.createElement('option');
+        prompt.value = '';
+        prompt.textContent = 'Selecione um produto';
+        productSelect.append(prompt);
+
+        products.forEach((product) => {
+          const option = document.createElement('option');
+          option.value = product.id_produto;
+          option.textContent = `${product.nome} — ${product.quantidade ?? product.quantidade_estoque ?? 0} un.`;
+          productSelect.append(option);
+        });
+
+        productsList.replaceChildren();
+        if (!products.length) {
+          const row = document.createElement('tr');
+          const cell = makeTableCell('Nenhum produto cadastrado.');
+          cell.colSpan = 5;
+          row.append(cell);
+          productsList.append(row);
+          return;
+        }
+        products.forEach((product) => {
+          const row = document.createElement('tr');
+          row.append(makeTableCell(product.nome));
+          row.append(makeTableCell(product.setor));
+          row.append(makeTableCell(product.localizacao));
+          row.append(makeTableCell(product.estado_produto));
+          row.append(makeTableCell(String(product.quantidade ?? product.quantidade_estoque ?? 0)));
+          productsList.append(row);
+        });
+      };
+
+      const loadMovements = async () => {
+        showFormMessage(movementsError, '');
+        const result = await apiRequest('/estoque/movimentacoes');
+        const movements = Array.isArray(result.dados) ? result.dados : [];
+        movementsList.replaceChildren();
+        if (!movements.length) {
+          const row = document.createElement('tr');
+          const cell = makeTableCell('Nenhuma movimentação registrada.');
+          cell.colSpan = 7;
+          row.append(cell);
+          movementsList.append(row);
+          return;
+        }
+
+        movements.forEach((movement) => {
+          const row = document.createElement('tr');
+          const date = movement.data_movimentacao
+            ? new Date(movement.data_movimentacao).toLocaleString('pt-BR')
+            : '—';
+          row.append(makeTableCell(date));
+          row.append(makeTableCell(movement.tipo === 'entrada' ? 'Entrada' : 'Saída'));
+          row.append(makeTableCell(movement.nome_produto));
+          row.append(makeTableCell(String(movement.quantidade)));
+          row.append(makeTableCell(movement.responsavel));
+          row.append(makeTableCell(`${movement.setor} / ${movement.localizacao}`));
+          const reviewDate = movement.proxima_revisao
+            ? `revisão em ${String(movement.proxima_revisao).slice(0, 10)}`
+            : '';
+          row.append(makeTableCell([
+            movement.estado_produto,
+            reviewDate,
+            movement.observacao,
+          ].filter(Boolean).join(' — ')));
+          movementsList.append(row);
+        });
+      };
+
+      productSelect.addEventListener('change', () => {
+        const product = products.find((item) => String(item.id_produto) === productSelect.value);
+        if (!product) return;
+        form.elements.setor.value = product.setor || '';
+        form.elements.localizacao.value = product.localizacao || '';
+        form.elements.estado_produto.value = product.estado_produto || 'Novo';
+        form.elements.proxima_revisao.value = product.proxima_revisao
+          ? String(product.proxima_revisao).slice(0, 10)
+          : '';
+      });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        showFormMessage(formError, '');
+        const body = Object.fromEntries(new FormData(form).entries());
+        body.quantidade = Number(body.quantidade);
+        body.id_produto = Number(body.id_produto);
+        submitButton.disabled = true;
+        submitButton.textContent = 'Registrando...';
+        try {
+          const result = await apiRequest('/estoque/movimentacoes', {
+            method: 'POST',
+            body: JSON.stringify(body),
+          });
+          showFormMessage(formError, result.mensagem || 'Movimentação registrada.', true);
+          form.elements.quantidade.value = '';
+          form.elements.observacao.value = '';
+          await Promise.all([loadProducts(), loadMovements()]);
+        } catch (error) {
+          showFormMessage(formError, error.message);
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Registrar movimentação';
+        }
+      });
+
+      try {
+        await Promise.all([loadProducts(), loadMovements()]);
+      } catch (error) {
+        showFormMessage(productsError, error.message);
+        showFormMessage(movementsError, error.message);
+      }
     }
   });
 
