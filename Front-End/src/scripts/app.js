@@ -4,19 +4,23 @@ import './config.js';
 
 const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
 const PAGE_ROLES = {
-  painel: ['Administrador', 'Gerente'],
-  critico: ['Administrador', 'Gerente', 'Estoquista'],
-  devolucoes: ['Administrador', 'Gerente', 'Estoquista'],
+  painel: ['Gerente'],
+  critico: ['Gerente', 'Estoquista'],
+  devolucoes: ['Gerente', 'Estoquista'],
   funcionarios: ['Administrador'],
-  lotes: ['Administrador', 'Gerente', 'Estoquista'],
-  notificacoes: ['Administrador', 'Gerente', 'Estoquista'],
-  produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
-  'gestao-produtos': ['Administrador', 'Gerente'],
-  'setor-estoquista': ['Administrador', 'Gerente', 'Estoquista'],
+  niveis: ['Administrador'],
+  niveis: ['Administrador'],
+  lotes: ['Gerente', 'Estoquista'],
+  notificacoes: ['Gerente', 'Estoquista'],
+  produtos: ['Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
+  'saida-vendas': ['Gerente', 'Estoquista', 'Vendedor'],
+  'gestao-produtos': ['Gerente'],
+  'setor-estoquista': ['Gerente', 'Estoquista'],
 };
 
 function paginaInicialDoCargo(nivel) {
-  return ['Administrador', 'Gerente'].includes(nivel) ? 'dashboard.html' : 'produtos.html';
+  if (nivel === 'Administrador') return 'funcionarios.html';
+  return nivel === 'Gerente' ? 'dashboard.html' : 'produtos.html';
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -25,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initContrastToggle();
   initSidebar();
   initProfileEditor();
+  initSales();
   initAuthTabs();
   initLoginForm();
   initRegisterForm();
@@ -33,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initNotifications();
   markActiveNav();
   initFuncionarios();
+  initNiveis();
   initDevolucoes();
   initLotsManager();
   initManagerProducts();
@@ -163,6 +169,13 @@ function applyRoleAccess(user) {
     const item = element.closest('li') || element;
     item.hidden = !allowedRoles.includes(user.nivel);
   });
+
+  if (user.nivel === 'Administrador') {
+    document.querySelectorAll('.nav-list a[data-page]').forEach((link) => {
+      const item = link.closest('li') || link;
+      item.hidden = !['funcionarios', 'niveis'].includes(link.dataset.page);
+    });
+  }
 
   document.querySelectorAll('.nav-list').forEach((list) => {
     const hasVisibleItem = Array.from(list.children).some((item) => !item.hidden);
@@ -740,6 +753,121 @@ function makeTableCell(text) {
   return cell;
 }
 
+async function initSales() {
+  const form = document.querySelector('[data-sale-form]');
+  const list = document.querySelector('[data-sale-list]');
+  if (!form || !list) return;
+
+  const lotSelect = form.elements.id_lote;
+  const quantityInput = form.elements.quantidade;
+  const sectorInput = form.elements.setor_produto;
+  const message = form.querySelector('[data-sale-message]');
+  const listMessage = document.querySelector('[data-sale-list-message]');
+  const submitButton = form.querySelector('[type="submit"]');
+  let availableLots = [];
+
+  const loadLots = async () => {
+    const result = await apiRequest('/saidas/lotes-disponiveis');
+    availableLots = Array.isArray(result.dados) ? result.dados : [];
+    lotSelect.replaceChildren();
+    const prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = availableLots.length ? 'Selecione produto e lote' : 'Sem estoque disponível';
+    lotSelect.append(prompt);
+    availableLots.forEach((lot) => {
+      const option = document.createElement('option');
+      option.value = lot.id_lote;
+      option.textContent = `${lot.produto_nome} · lote #${lot.id_lote} · ${lot.quantidade} un.`;
+      lotSelect.append(option);
+    });
+    lotSelect.disabled = availableLots.length === 0;
+  };
+
+  const loadSales = async () => {
+    showFormMessage(listMessage, '');
+    try {
+      const result = await apiRequest('/saidas');
+      const sales = Array.isArray(result) ? result : (result.dados || []);
+      list.replaceChildren();
+      if (!sales.length) {
+        const row = document.createElement('tr');
+        const cell = makeTableCell('Nenhuma saída de venda registrada.');
+        cell.colSpan = 7;
+        row.append(cell);
+        list.append(row);
+        return;
+      }
+      sales.forEach((sale) => {
+        const row = document.createElement('tr');
+        row.append(makeTableCell(`#${sale.id_saida}`));
+        row.append(makeTableCell(sale.data_saida ? new Date(sale.data_saida).toLocaleString('pt-BR') : '—'));
+        row.append(makeTableCell(sale.produto_nome || sale.nome_produto));
+        row.append(makeTableCell(`#${sale.id_lote}`));
+        row.append(makeTableCell(Number(sale.quantidade).toLocaleString('pt-BR')));
+        row.append(makeTableCell(sale.setor_produto));
+        row.append(makeTableCell(sale.vendedor_nome || '—'));
+        list.append(row);
+      });
+    } catch (error) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell(error.message);
+      cell.colSpan = 7;
+      row.append(cell);
+      list.replaceChildren(row);
+      showFormMessage(listMessage, error.message);
+    }
+  };
+
+  lotSelect.addEventListener('change', () => {
+    const lot = availableLots.find((item) => String(item.id_lote) === lotSelect.value);
+    quantityInput.max = lot ? String(lot.quantidade) : '';
+    quantityInput.value = '';
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showFormMessage(message, '');
+    const lot = availableLots.find((item) => String(item.id_lote) === lotSelect.value);
+    const quantity = Number(quantityInput.value);
+    if (!lot || !Number.isInteger(quantity) || quantity < 1 || quantity > Number(lot.quantidade)) {
+      showFormMessage(message, 'Selecione um lote e informe uma quantidade dentro do saldo disponível.');
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Registrando...';
+    try {
+      const result = await apiRequest('/saidas', {
+        method: 'POST',
+        body: JSON.stringify({
+          id_lote: lot.id_lote,
+          quantidade: quantity,
+          setor_produto: sectorInput.value.trim(),
+        }),
+      });
+      form.reset();
+      sectorInput.value = 'Vendas';
+      quantityInput.removeAttribute('max');
+      showFormMessage(message, result.message || 'Venda registrada e estoque atualizado.', true);
+      await Promise.all([loadLots(), loadSales()]);
+    } catch (error) {
+      showFormMessage(message, error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Registrar saída de venda';
+    }
+  });
+
+  sectorInput.value = 'Vendas';
+  try {
+    await loadLots();
+  } catch (error) {
+    lotSelect.disabled = true;
+    showFormMessage(message, error.message);
+  }
+  await loadSales();
+}
+
 async function initFuncionarios() {
   const form = document.querySelector('[data-funcionario-form]');
   const list = document.querySelector('[data-funcionario-list]');
@@ -924,6 +1052,143 @@ async function initFuncionarios() {
     showMessage(errorBox, error.message);
   }
   await loadEmployees();
+}
+
+async function initNiveis() {
+  const form = document.querySelector('[data-nivel-form]');
+  const list = document.querySelector('[data-nivel-list]');
+  if (!form || !list) return;
+
+  const errorBox = form.querySelector('[data-nivel-error]');
+  const listError = document.querySelector('[data-nivel-list-error]');
+  const cancelButton = document.querySelector('[data-nivel-cancel]');
+  const submitButton = form.querySelector('[type="submit"]');
+  const title = document.querySelector('#nivel-form-title');
+
+  const showMessage = (element, message, success = false) => {
+    element.textContent = message;
+    element.classList.toggle('visible', Boolean(message));
+    element.classList.toggle('success', success);
+  };
+
+  const loadLevels = async () => {
+    showMessage(listError, '');
+    try {
+      const [levelResult, employeeResult] = await Promise.all([
+        apiRequest('/nivel'),
+        apiRequest('/funcionarios'),
+      ]);
+      const levels = Array.isArray(levelResult.dados) ? levelResult.dados : [];
+      const employees = Array.isArray(employeeResult.dados) ? employeeResult.dados : [];
+      const employeeCounts = new Map();
+      employees.forEach((employee) => {
+        const id = String(employee.id_nivel);
+        employeeCounts.set(id, (employeeCounts.get(id) || 0) + 1);
+      });
+      list.replaceChildren();
+      if (!levels.length) {
+        const row = document.createElement('tr');
+        const cell = makeTableCell('Nenhum nível cadastrado.');
+        cell.colSpan = 3;
+        row.append(cell);
+        list.append(row);
+        return;
+      }
+
+      levels.forEach((level) => {
+        const row = document.createElement('tr');
+        row.append(makeTableCell(`#${level.id_nivel}`));
+        row.append(makeTableCell(level.descricao));
+        row.append(makeTableCell(String(employeeCounts.get(String(level.id_nivel)) || 0)));
+        const actions = document.createElement('td');
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'text-button';
+        editButton.textContent = 'Editar';
+        editButton.addEventListener('click', () => {
+          form.elements.id_nivel.value = level.id_nivel;
+          form.elements.descricao.value = level.descricao;
+          title.textContent = `Editar nível #${level.id_nivel}`;
+          submitButton.textContent = 'Salvar alterações';
+          cancelButton.hidden = false;
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        const employeeCount = employeeCounts.get(String(level.id_nivel)) || 0;
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'text-button danger-button';
+        deleteButton.textContent = 'Excluir';
+        deleteButton.disabled = level.descricao === 'Administrador' || employeeCount > 0;
+        deleteButton.title = level.descricao === 'Administrador'
+          ? 'O nível Administrador é obrigatório.'
+          : employeeCount > 0 ? 'Este nível está atribuído a funcionários.' : '';
+        deleteButton.addEventListener('click', async () => {
+          if (!window.confirm(`Excluir o nível ${level.descricao}?`)) return;
+          deleteButton.disabled = true;
+          try {
+            const result = await apiRequest(`/nivel/${level.id_nivel}`, { method: 'DELETE' });
+            showMessage(errorBox, result.mensagem || 'Nível excluído.', true);
+            await loadLevels();
+          } catch (error) {
+            showMessage(listError, error.message);
+            deleteButton.disabled = false;
+          }
+        });
+        actions.append(editButton, deleteButton);
+        row.append(actions);
+        list.append(row);
+      });
+    } catch (error) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell(error.message);
+      cell.colSpan = 4;
+      row.append(cell);
+      list.replaceChildren(row);
+      showMessage(listError, error.message);
+    }
+  };
+
+  const resetForm = () => {
+    form.reset();
+    form.elements.id_nivel.value = '';
+    title.textContent = 'Cadastrar nível';
+    submitButton.textContent = 'Cadastrar nível';
+    cancelButton.hidden = true;
+    showMessage(errorBox, '');
+  };
+
+  cancelButton.addEventListener('click', resetForm);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showMessage(errorBox, '');
+    const levelId = form.elements.id_nivel.value;
+    const descricao = form.elements.descricao.value.trim();
+    if (!descricao || descricao.length > 100) {
+      showMessage(errorBox, 'Informe uma descrição com até 100 caracteres.');
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = 'Salvando...';
+    try {
+      const result = await apiRequest(levelId ? `/nivel/${levelId}` : '/nivel', {
+        method: levelId ? 'PUT' : 'POST',
+        body: JSON.stringify({ descricao }),
+      });
+      resetForm();
+      showMessage(errorBox, result.mensagem || (levelId ? 'Nível atualizado.' : 'Nível cadastrado.'), true);
+      await loadLevels();
+    } catch (error) {
+      showMessage(errorBox, error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = form.elements.id_nivel.value ? 'Salvar alterações' : 'Cadastrar nível';
+    }
+  });
+
+  await loadLevels();
 }
 
 async function initLotsManager() {

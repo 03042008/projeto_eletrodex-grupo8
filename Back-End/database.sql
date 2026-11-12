@@ -124,12 +124,14 @@ CREATE TABLE entrada (
 -- ==========================
 CREATE TABLE saida (
     id_saida INT AUTO_INCREMENT PRIMARY KEY,
-    id_entrada INT NOT NULL,
+    id_entrada INT NULL,
     data_saida DATETIME NOT NULL,
     nome_produto VARCHAR(200) NOT NULL,
     id_produto INT NOT NULL,
     setor_produto VARCHAR(200) NOT NULL,
     id_lote INT NOT NULL,
+    id_funcionario INT NULL,
+    quantidade INT NOT NULL DEFAULT 1,
 
     FOREIGN KEY (id_entrada)
         REFERENCES entrada(id_entrada),
@@ -138,7 +140,10 @@ CREATE TABLE saida (
         REFERENCES produto(id_produto),
 
     FOREIGN KEY (id_lote)
-        REFERENCES lote(id_lote)
+        REFERENCES lote(id_lote),
+
+    FOREIGN KEY (id_funcionario)
+        REFERENCES funcionario(id_funcionario)
 );
 
 -- ==========================

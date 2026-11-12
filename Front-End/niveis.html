@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eletrodex — Níveis de acesso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles/style.css">
+</head>
+<body data-page="niveis">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <div class="sidebar-scrim" data-sidebar-scrim></div>
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Navegação principal">
+      <div class="brand-mark"><span>Eletrodex</span><span class="dot">●</span></div>
+      <p class="nav-group-label">Administração</p>
+      <ul class="nav-list">
+        <li><a href="./funcionarios.html" data-page="funcionarios" data-roles="Administrador"><span class="tick"></span>Funcionários</a></li>
+        <li><a href="./niveis.html" data-page="niveis" data-roles="Administrador"><span class="tick"></span>Níveis de acesso</a></li>
+      </ul>
+      <div class="sidebar-foot">
+        <div class="avatar">SU</div>
+        <div class="user-info"><div class="user-name">Seu usuário</div><div class="role-badge">Cargo</div></div>
+        <button type="button" class="logout-button" data-logout>Sair</button>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
+          <div><h1>Níveis de acesso</h1><p class="subtitle">Gerencie os cargos disponíveis para as contas</p></div>
+        </div>
+      </header>
+      <main class="app-content" id="conteudo">
+        <div class="content-container manager-product-layout">
+          <section class="card" aria-labelledby="nivel-form-title">
+            <div class="panel-header">
+              <h2 id="nivel-form-title">Cadastrar nível</h2>
+              <button type="button" class="text-button" data-nivel-cancel hidden>Cancelar edição</button>
+            </div>
+            <form data-nivel-form>
+              <div class="form-error" data-nivel-error role="alert" aria-live="polite"></div>
+              <input type="hidden" name="id_nivel">
+              <div class="field"><label for="nivel-descricao">Descrição do nível</label><input id="nivel-descricao" name="descricao" maxlength="100" required></div>
+              <button class="btn-primary product-submit" type="submit">Cadastrar nível</button>
+            </form>
+          </section>
+
+          <section class="card" aria-labelledby="nivel-list-title">
+            <div class="panel-header"><h2 id="nivel-list-title">Níveis cadastrados</h2></div>
+            <p class="form-error" data-nivel-list-error role="alert" aria-live="polite"></p>
+            <div class="table-container">
+              <table class="data-table">
+                <thead><tr><th>ID</th><th>Nível</th><th>Funcionários vinculados</th><th>Ações</th></tr></thead>
+                <tbody data-nivel-list><tr><td colspan="4">Carregando níveis...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="./src/scripts/app.js"></script>
+</body>
+</html>

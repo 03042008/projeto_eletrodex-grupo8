@@ -5,6 +5,7 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware');
 
 router.use(authenticate);
 router.get('/', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor'), saidaController.listar);
+router.get('/lotes-disponiveis', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor'), saidaController.listarLotesDisponiveis);
 router.get('/:id', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor'), saidaController.buscarPorId);
 router.post('/', authorize('Administrador', 'Gerente', 'Estoquista', 'Vendedor'), saidaController.criar);
 router.put('/:id', authorize('Administrador', 'Gerente'), saidaController.atualizar);

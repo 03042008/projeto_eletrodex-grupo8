@@ -11,6 +11,22 @@ class NivelRepository {
         return rows[0]
     }
 
+    async buscarPorDescricao(descricao) {
+        const [rows] = await pool.query(
+            'SELECT id_nivel, descricao FROM nivel WHERE LOWER(descricao) = LOWER(?) LIMIT 1',
+            [descricao]
+        )
+        return rows[0]
+    }
+
+    async contarFuncionarios(id) {
+        const [rows] = await pool.query(
+            'SELECT COUNT(*) AS total FROM funcionario WHERE id_nivel = ?',
+            [id]
+        )
+        return Number(rows[0].total)
+    }
+
     async create(nivelData) {
         const { descricao } = nivelData;
 

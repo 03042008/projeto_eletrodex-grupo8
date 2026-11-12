@@ -27,17 +27,17 @@ class NivelService {
   }
 
   async cadastrarNivel(dados) {
-    const { descricao } = dados;
+    const descricao = typeof dados?.descricao === 'string' ? dados.descricao.trim() : '';
 
-    if (!descricao || String(descricao).trim() === "") {
-      throw { status: 400, mensagem: "Descrição é obrigatória" };
+    if (!descricao || descricao.length > 100) {
+      throw { status: 400, mensagem: "Descrição é obrigatória e deve ter até 100 caracteres." };
     }
 
-    const novoNivel = {
-      descricao: descricao.trim(),
-    };
+    if (await NivelRepository.buscarPorDescricao(descricao)) {
+      throw { status: 409, mensagem: "Já existe um nível com essa descrição." };
+    }
 
-    const id = await NivelRepository.create(novoNivel);
+    const id = await NivelRepository.create({ descricao });
 
     return {
       sucesso: true,
@@ -60,10 +60,15 @@ class NivelService {
     const { descricao } = dados;
 
     if (descricao !== undefined) {
-      if (String(descricao).trim() === "") {
-        throw { status: 400, mensagem: "Descrição não pode ser vazia" };
+      const descricaoLimpa = typeof descricao === 'string' ? descricao.trim() : '';
+      if (!descricaoLimpa || descricaoLimpa.length > 100) {
+        throw { status: 400, mensagem: "Descrição é obrigatória e deve ter até 100 caracteres." };
       }
-      atualizado.descricao = descricao.trim();
+      const duplicado = await NivelRepository.buscarPorDescricao(descricaoLimpa);
+      if (duplicado && Number(duplicado.id_nivel) !== Number(id)) {
+        throw { status: 409, mensagem: "Já existe um nível com essa descrição." };
+      }
+      atualizado.descricao = descricaoLimpa;
     }
 
     if (Object.keys(atualizado).length === 0) {
@@ -89,6 +94,13 @@ class NivelService {
     const existe = await NivelRepository.buscarId(id);
     if (!existe) {
       throw { status: 404, mensagem: "Nível não encontrado" };
+    }
+
+    if (existe.descricao === 'Administrador') {
+      throw { status: 409, mensagem: "O nível Administrador não pode ser removido." };
+    }
+    if (await NivelRepository.contarFuncionarios(id)) {
+      throw { status: 409, mensagem: "Não é possível remover um nível atribuído a funcionários." };
     }
 
     await NivelRepository.deletarNivel(id);

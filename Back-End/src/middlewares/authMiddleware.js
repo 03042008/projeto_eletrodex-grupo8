@@ -37,6 +37,10 @@ function permitirCargos(...allowedRoles) {
     if (!req.usuario) {
       return res.status(401).json({ erro: "Autenticação necessária." });
     }
+    const routeScope = (req.baseUrl || "").replace(/\/+$/, "");
+    if (req.usuario.nivel === "Administrador" && !["/funcionarios", "/nivel"].includes(routeScope)) {
+      return res.status(403).json({ erro: "O Administrador tem acesso somente a Funcionários e Níveis de acesso." });
+    }
     if (!allowedRoles.includes(req.usuario.nivel)) {
       return res.status(403).json({ erro: "Seu cargo não tem permissão para esta função." });
     }
