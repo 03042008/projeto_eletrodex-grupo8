@@ -9,6 +9,7 @@ router.post("/redefinir-senha", FuncionarioController.redefinirSenha);
 router.post("/cadastro", FuncionarioController.cadastrarConta);
 router.get("/sessao", authenticate, FuncionarioController.sessaoAtual);
 router.post("/logout", authenticate, FuncionarioController.logout);
+router.put("/perfil", authenticate, FuncionarioController.atualizarPerfil);
 
 router.get("/", authenticate, authorize("Administrador", "Gerente"), FuncionarioController.listar);
 router.get("/:id", authenticate, authorize("Administrador", "Gerente"), FuncionarioController.buscarPorId);

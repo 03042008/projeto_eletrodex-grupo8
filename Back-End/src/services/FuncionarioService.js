@@ -66,6 +66,7 @@ class FuncionarioService {
       id_nivel: funcionario.id_nivel,
       nome: funcionario.nome,
       email: funcionario.email,
+      cpf: funcionario.cpf,
       nivel: funcionario.nivel,
     };
 
@@ -195,6 +196,64 @@ class FuncionarioService {
     await FuncionarioRepository.update(id, atualizacao);
 
     return { sucesso: true, mensagem: "Funcionário atualizado com sucesso" };
+  }
+
+  async atualizarPerfil(idFuncionario, dados = {}) {
+    const camposPermitidos = ["nome", "email", "cpf"];
+    if (Object.keys(dados).some((campo) => !camposPermitidos.includes(campo))) {
+      throw { status: 400, mensagem: "O perfil aceita apenas nome, e-mail e CPF." };
+    }
+
+    const existente = await FuncionarioRepository.findById(idFuncionario);
+    if (!existente) throw { status: 404, mensagem: "Funcionário não encontrado." };
+
+    const atualizacao = {};
+    if (dados.nome !== undefined) {
+      if (typeof dados.nome !== "string" || !dados.nome.trim() || dados.nome.trim().length > 100) {
+        throw { status: 400, mensagem: "Informe um nome válido de até 100 caracteres." };
+      }
+      atualizacao.nome = dados.nome.trim();
+    }
+
+    if (dados.email !== undefined) {
+      const email = typeof dados.email === "string" ? dados.email.trim().toLowerCase() : "";
+      if (email.length > 100 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw { status: 400, mensagem: "Informe um e-mail válido." };
+      }
+      atualizacao.email = email;
+    }
+
+    if (dados.cpf !== undefined) {
+      const cpf = normalizarCpf(dados.cpf);
+      if (!cpf) throw { status: 400, mensagem: "Informe um CPF válido." };
+      atualizacao.cpf = cpf;
+    }
+
+    if (Object.keys(atualizacao).length === 0) {
+      throw { status: 400, mensagem: "Informe nome, e-mail ou CPF para atualizar." };
+    }
+
+    const duplicado = await FuncionarioRepository.findByEmailOrCpfForOtherUser(
+      atualizacao.email ?? existente.email,
+      atualizacao.cpf ?? existente.cpf,
+      idFuncionario
+    );
+    if (duplicado) throw { status: 409, mensagem: "E-mail ou CPF já está em uso." };
+
+    try {
+      await FuncionarioRepository.update(idFuncionario, atualizacao);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") {
+        throw { status: 409, mensagem: "E-mail ou CPF já está em uso." };
+      }
+      throw error;
+    }
+
+    return {
+      sucesso: true,
+      mensagem: "Perfil atualizado com sucesso.",
+      usuario: await FuncionarioRepository.findById(idFuncionario),
+    };
   }
 
   async deletarFuncionario(id) {

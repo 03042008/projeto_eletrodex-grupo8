@@ -22,6 +22,7 @@ async function authenticate(req, res, next) {
       id_nivel: user.id_nivel,
       nome: user.nome,
       email: user.email,
+      cpf: user.cpf,
       nivel: user.nivel,
     };
     req.sessionToken = match[1];
