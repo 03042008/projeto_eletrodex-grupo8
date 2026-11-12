@@ -13,6 +13,7 @@ module.exports = {
         path.join(frontend, 'produtos.html'),
         path.join(frontend, 'gestao-produtos.html'),
         path.join(frontend, 'setor-estoquista.html'),
+        path.join(frontend, 'entrada-produtos.html'),
       ],
     },
   },

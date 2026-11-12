@@ -60,15 +60,10 @@
       <li><a href="./produtos.html" data-page="produtos" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Produtos</a></li>
       <li><a href="#" data-page="lotes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Lotes</a></li>
       <li><a href="#" data-page="movimentacao" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Movimentação</a></li>
-      <li><a href="#" data-page="entrada" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
-<<<<<<< HEAD
-      <li><a href="#" data-page="saida" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Saída de produtos</a></li>
+      <li><a href="./entrada-produtos.html" data-page="entrada-produtos" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
+      <li><a href="./setor-estoquista.html" data-page="saida" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Saída de produtos</a></li>
       <li><a href="./setor-estoquista.html" data-page="setor-estoquista" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Operação do estoque</a></li>
       <li><a href="./gestao-produtos.html" data-page="gestao-produtos" data-roles="Administrador,Gerente"><span class="tick"></span>Gestão de produtos</a></li>
-      <li><a href="#" data-page="saida-vendas" data-roles="Vendedor"><span class="tick"></span>Saídas de vendas</a></li>
-=======
-      <li><a href="#" data-page="saida" data-roles="Administrador,Gerente,Estoquista,Vendedor"><span class="tick"></span>Saída de produtos</a></li>
->>>>>>> 12644201d4c47656db16d895f48b65d9b93bbb92
       <li><a href="#" data-page="devolucoes" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Devoluções</a></li>
     </ul>
 
@@ -317,148 +312,6 @@
       </div>
     </div>
 
-<<<<<<< HEAD
-  <div class="app-main">
-    <header class="app-topbar">
-      <div class="topbar-left">
-        <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
-        <div id="topo-site">
-          <h1>Painel geral</h1>
-          <p class="subtitle">Visão consolidada do estoque e das movimentações</p>
-        </div>
-      </div>
-
-      <div class="topbar-actions">
-        <div class="search-wrap">
-          <span class="search-icon" aria-hidden="true">🔍</span>
-          <input type="search" class="search-input" placeholder="Buscar produto, lote ou funcionário..." aria-label="Buscar">
-        </div>
-        <div class="notifications-wrapper">
-          <button class="icon-btn notification-btn" aria-label="Notificações de estoque crítico" aria-expanded="false" aria-controls="notifications-panel">
-            🔔
-            <span class="badge">3</span>
-          </button>
-
-          <div class="notifications-panel" id="notifications-panel" role="dialog" aria-labelledby="notifications-title">
-            <div class="notifications-header">
-              <h3 id="notifications-title">Notificações de Estoque</h3>
-              <button class="close-notifications-btn" aria-label="Fechar notificações">✕</button>
-            </div>
-
-            <div class="notifications-list">
-              <div class="notification-item notification-critical">
-                <div class="notification-icon">⚠️</div>
-                <div class="notification-content">
-                  <div class="notification-title">Estoque Crítico</div>
-                  <div class="notification-message">Micro-ondas Compact 20L está em nível crítico (2 unidades)</div>
-                  <div class="notification-time">há 15 minutos</div>
-                </div>
-              </div>
-
-              <div class="notification-item notification-warning">
-                <div class="notification-icon">⊙</div>
-                <div class="notification-content">
-                  <div class="notification-title">Revisão Pendente</div>
-                  <div class="notification-message">Lote LT-0198 aguardando revisão há 2 horas</div>
-                  <div class="notification-time">há 2 horas</div>
-                </div>
-              </div>
-
-              <div class="notification-item notification-critical">
-                <div class="notification-icon">⚠️</div>
-                <div class="notification-content">
-                  <div class="notification-title">Vencimento Próximo</div>
-                  <div class="notification-message">Micro-ondas Grill 32L vence em 7 dias</div>
-                  <div class="notification-time">há 4 horas</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="notifications-footer">
-              <a href="#" class="view-all-notifications">Ver todas as notificações →</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <main class="app-content" id="conteudo">
-      <div class="content-container">
-        <section class="kpi-grid" aria-label="Indicadores gerais">
-          <a href="./produtos.html" class="kpi-link">
-            <div class="card kpi-card">
-              <div class="kpi-label">Produtos em estoque</div>
-              <div class="kpi-value">248</div>
-            </div>
-          </a>
-          <a href="./critico.html" class="card kpi-card alert" aria-label="Ver produtos em nível crítico" data-roles="Administrador,Gerente,Estoquista">
-            <div class="kpi-label">Crítico</div>
-            <div class="kpi-value">6</div>
-          </a>
-          <div class="card kpi-card">
-            <div class="kpi-label">Movimentações hoje</div>
-            <div class="kpi-value">14</div>
-          </div>
-          <div class="card kpi-card">
-            <div class="kpi-label">Pendências</div>
-            <div class="kpi-value">2</div>
-          </div>
-        </section>
-
-        <section class="card activity-card" aria-labelledby="mov-title">
-          <div class="panel-header">
-            <h2 id="mov-title">Atividade recente</h2>
-            <a href="#" class="view-all-link">Ver todas →</a>
-          </div>
-
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th scope="col" class="col-product">Produto</th>
-                  <th scope="col" class="col-lot">Lote</th>
-                  <th scope="col" class="col-sector">Setor</th>
-                  <th scope="col" class="col-user">Responsável</th>
-                  <th scope="col" class="col-status">Estado</th>
-                  <th scope="col" class="col-time">Horário</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="col-product"><strong>Micro-ondas Compact 20L</strong></td>
-                  <td class="id-cell col-lot">LT-0231</td>
-                  <td class="col-sector">Expedição</td>
-                  <td class="col-user">Letícia Caristo</td>
-                  <td class="col-status"><span class="pill ok">✓ Disponível</span></td>
-                  <td class="col-time">14:22</td>
-                </tr>
-                <tr>
-                  <td class="col-product"><strong>Micro-ondas Grill 32L</strong></td>
-                  <td class="id-cell col-lot">LT-0198</td>
-                  <td class="col-sector">Recebimento</td>
-                  <td class="col-user">José Arthur</td>
-                  <td class="col-status"><span class="pill warn">⊙ Em revisão</span></td>
-                  <td class="col-time">11:05</td>
-                </tr>
-                <tr>
-                  <td class="col-product"><strong>Micro-ondas Inox 28L</strong></td>
-                  <td class="id-cell col-lot">LT-0176</td>
-                  <td class="col-sector">Devolução</td>
-                  <td class="col-user">Luiz Gustavo</td>
-                  <td class="col-status"><span class="pill danger">✗ Avariado</span></td>
-                  <td class="col-time">17:40</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-</div>
-
-=======
->>>>>>> 12644201d4c47656db16d895f48b65d9b93bbb92
 <dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-dialog-title">
   <form data-profile-form novalidate>
     <div class="profile-dialog-header">
@@ -474,11 +327,6 @@
   </form>
 </dialog>
 
-<<<<<<< HEAD
 <script type="module" src="./src/scripts/app.js"></script>
-=======
-<script src="./src/scripts/config.js"></script>
-<script src="./src/scripts/app.js"></script>
->>>>>>> 12644201d4c47656db16d895f48b65d9b93bbb92
 </body>
 </html>

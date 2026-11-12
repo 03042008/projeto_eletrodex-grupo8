@@ -147,7 +147,9 @@ O estoquista entra com o e-mail e a senha da conta que o administrador cadastrou
 
 Gerentes e administradores podem cadastrar, editar e excluir produtos em **Gestão de produtos**, incluindo nome, setor, imagem para download, tamanho, preço, quantidade, modelo, localização e conservação. Para preservar o inventário e o histórico, é preciso zerar o saldo; produtos com lotes ou movimentações associados não podem ser excluídos.
 
-Depois de criar o banco com `Back-End/database.sql` e executar as migrações anteriores, aplique `Back-End/migrations/002_gestao_estoque.sql` tanto em instalações novas quanto em bancos existentes. A migration adiciona os campos de produto e o histórico transacional de entradas e saídas.
+Depois de criar o banco com `Back-End/database.sql` e executar as migrações anteriores, aplique `Back-End/migrations/002_gestao_estoque.sql` e então `Back-End/migrations/003_ajustes_estoque.sql`, tanto em instalações novas quanto em bancos existentes. As migrações adicionam os campos de produto, o histórico de entradas/saídas e o tipo de ajuste de conservação.
+
+Na página **Entrada de produtos**, o estoquista seleciona um produto já cadastrado pelo gerente e informa quantidade, data, setor, localização e conservação. Em **Operação do estoque**, pode editar a organização e conservação do item ou excluí-lo do estoque, registrando a retirada total como saída e preservando o cadastro e o histórico.
 
 ### 📥 Entrada de produtos
 

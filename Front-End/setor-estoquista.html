@@ -22,6 +22,7 @@
       <p class="nav-group-label">Estoque</p>
       <ul class="nav-list">
         <li><a href="setor-estoquista.html" data-page="setor-estoquista" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Operação do estoque</a></li>
+        <li><a href="entrada-produtos.html" data-page="entrada-produtos" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Entrada de produtos</a></li>
         <li><a href="gestao-produtos.html" data-page="gestao-produtos" data-roles="Administrador,Gerente"><span class="tick"></span>Gestão de produtos</a></li>
       </ul>
       <div class="sidebar-foot">
@@ -63,8 +64,8 @@
             <p class="form-error" data-stock-list-error role="alert" aria-live="polite"></p>
             <div class="table-container">
               <table class="data-table">
-                <thead><tr><th>Produto</th><th>Setor</th><th>Localização</th><th>Conservação</th><th>Quantidade</th></tr></thead>
-                <tbody data-stock-products><tr><td colspan="5">Carregando produtos...</td></tr></tbody>
+                <thead><tr><th>Produto</th><th>Setor</th><th>Localização</th><th>Conservação</th><th>Quantidade</th><th>Ações</th></tr></thead>
+                <tbody data-stock-products><tr><td colspan="6">Carregando produtos...</td></tr></tbody>
               </table>
             </div>
           </section>
@@ -83,6 +84,26 @@
       </main>
     </div>
   </div>
+  <dialog class="stock-edit-dialog" data-stock-edit-dialog aria-labelledby="stock-edit-title">
+    <form data-stock-edit-form>
+      <div class="profile-dialog-header">
+        <div><p class="eyebrow">Operação do estoque</p><h2 id="stock-edit-title">Editar produto no estoque</h2></div>
+        <button type="button" class="close-notifications-btn" data-stock-edit-close aria-label="Fechar">×</button>
+      </div>
+      <p class="field-hint">O nome e a quantidade são controlados pelo cadastro e pelas movimentações.</p>
+      <div class="form-error" role="alert" aria-live="polite"></div>
+      <input type="hidden" name="id_produto">
+      <div class="field"><label for="editar-setor">Setor</label><input id="editar-setor" name="setor" maxlength="100" required></div>
+      <div class="field"><label for="editar-localizacao">Localização</label><input id="editar-localizacao" name="localizacao" maxlength="150" required></div>
+      <div class="field"><label for="editar-conservacao">Conservação</label><input id="editar-conservacao" name="estado_produto" maxlength="100" required></div>
+      <div class="field"><label for="editar-revisao">Próxima revisão</label><input id="editar-revisao" name="proxima_revisao" type="date"></div>
+      <div class="field"><label for="editar-observacao">Observação</label><textarea id="editar-observacao" name="observacao" maxlength="500" rows="3"></textarea></div>
+      <div class="profile-dialog-actions">
+        <button type="button" class="btn-secondary" data-stock-edit-close>Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar alterações</button>
+      </div>
+    </form>
+  </dialog>
   <script type="module" src="./src/scripts/app.js"></script>
 </body>
 </html>

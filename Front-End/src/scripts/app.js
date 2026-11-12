@@ -9,6 +9,7 @@ const PAGE_ROLES = {
   produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
   'gestao-produtos': ['Administrador', 'Gerente'],
   'setor-estoquista': ['Administrador', 'Gerente', 'Estoquista'],
+  'entrada-produtos': ['Administrador', 'Gerente', 'Estoquista'],
 };
 
 function paginaInicialDoCargo(nivel) {
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   markActiveNav();
   initManagerProducts();
   initStockOperations();
+  initStockEntry();
 });
 
 async function enforceAuthentication() {
@@ -781,6 +783,8 @@ async function initStockOperations() {
   const productsError = document.querySelector('[data-stock-list-error]');
   const movementsError = document.querySelector('[data-movement-list-error]');
   const submitButton = form.querySelector('[type="submit"]');
+  const editDialog = document.querySelector('[data-stock-edit-dialog]');
+  const editForm = document.querySelector('[data-stock-edit-form]');
   let products = [];
 
   const loadProducts = async () => {
@@ -804,7 +808,7 @@ async function initStockOperations() {
     if (!products.length) {
       const row = document.createElement('tr');
       const cell = makeTableCell('Nenhum produto cadastrado.');
-      cell.colSpan = 5;
+      cell.colSpan = 6;
       row.append(cell);
       productsList.append(row);
       return;
@@ -815,10 +819,79 @@ async function initStockOperations() {
       row.append(makeTableCell(product.setor));
       row.append(makeTableCell(product.localizacao));
       row.append(makeTableCell(product.estado_produto));
-      row.append(makeTableCell(String(product.quantidade ?? product.quantidade_estoque ?? 0)));
+      const quantity = Number(product.quantidade ?? product.quantidade_estoque ?? 0);
+      row.append(makeTableCell(String(quantity)));
+      const actions = document.createElement('td');
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'text-button';
+      edit.textContent = 'Editar';
+      edit.addEventListener('click', () => {
+        editForm.elements.id_produto.value = product.id_produto;
+        editForm.elements.setor.value = product.setor || '';
+        editForm.elements.localizacao.value = product.localizacao || '';
+        editForm.elements.estado_produto.value = product.estado_produto || 'Novo';
+        editForm.elements.proxima_revisao.value = product.proxima_revisao
+          ? String(product.proxima_revisao).slice(0, 10)
+          : '';
+        editForm.elements.observacao.value = '';
+        showFormMessage(editForm.querySelector('.form-error'), '');
+        editDialog.showModal();
+      });
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'text-button danger-button';
+      remove.textContent = quantity > 0 ? 'Excluir do estoque' : 'Fora do estoque';
+      remove.disabled = quantity === 0;
+      remove.setAttribute('aria-label', `Excluir ${product.nome} do estoque`);
+      remove.addEventListener('click', async () => {
+        if (!window.confirm(`Retirar todas as ${quantity} unidades de "${product.nome}" do estoque? O registro será mantido no histórico.`)) return;
+        remove.disabled = true;
+        try {
+          const result = await apiRequest(`/estoque/produtos/${product.id_produto}/retirar`, { method: 'POST' });
+          await Promise.all([loadProducts(), loadMovements()]);
+          showFormMessage(productsError, result.mensagem, true);
+        } catch (error) {
+          showFormMessage(productsError, error.message);
+          remove.disabled = false;
+        }
+      });
+      actions.append(edit, remove);
+      row.append(actions);
       productsList.append(row);
     });
   };
+
+  editDialog.querySelectorAll('[data-stock-edit-close]').forEach((button) => {
+    button.addEventListener('click', () => editDialog.close());
+  });
+  editDialog.addEventListener('click', (event) => {
+    if (event.target === editDialog) editDialog.close();
+  });
+  editForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const errorBox = editForm.querySelector('.form-error');
+    const button = editForm.querySelector('[type="submit"]');
+    const productId = editForm.elements.id_produto.value;
+    const payload = Object.fromEntries(new FormData(editForm).entries());
+    button.disabled = true;
+    button.textContent = 'Salvando...';
+    try {
+      const result = await apiRequest(`/estoque/produtos/${productId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      editDialog.close();
+      await Promise.all([loadProducts(), loadMovements()]);
+      showFormMessage(productsError, result.mensagem, true);
+    } catch (error) {
+      showFormMessage(errorBox, error.message);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Salvar alterações';
+    }
+  });
 
   const loadMovements = async () => {
     showFormMessage(movementsError, '');
@@ -840,7 +913,11 @@ async function initStockOperations() {
         ? new Date(movement.data_movimentacao).toLocaleString('pt-BR')
         : '—';
       row.append(makeTableCell(date));
-      row.append(makeTableCell(movement.tipo === 'entrada' ? 'Entrada' : 'Saída'));
+      row.append(makeTableCell({
+        entrada: 'Entrada',
+        saida: 'Saída',
+        ajuste: 'Ajuste',
+      }[movement.tipo] || movement.tipo));
       row.append(makeTableCell(movement.nome_produto));
       row.append(makeTableCell(String(movement.quantidade)));
       row.append(makeTableCell(movement.responsavel));
@@ -898,5 +975,110 @@ async function initStockOperations() {
   } catch (error) {
     showFormMessage(productsError, error.message);
     showFormMessage(movementsError, error.message);
+  }
+}
+
+async function initStockEntry() {
+  const form = document.querySelector('[data-stock-entry-form]');
+  const productsList = document.querySelector('[data-entry-stock-list]');
+  if (!form || !productsList) return;
+
+  const productSelect = form.elements.id_produto;
+  const errorBox = form.querySelector('.form-error');
+  const listError = document.querySelector('[data-entry-list-error]');
+  const submitButton = form.querySelector('[type="submit"]');
+  const entryDate = form.elements.data_movimentacao;
+  const today = new Date();
+  const localToday = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0'),
+  ].join('-');
+  entryDate.value = localToday;
+
+  let products = [];
+  const loadProducts = async () => {
+    showFormMessage(listError, '');
+    const result = await apiRequest('/produtos');
+    products = Array.isArray(result.dados) ? result.dados : [];
+    productSelect.replaceChildren();
+    const prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = products.length ? 'Selecione um produto' : 'Cadastre um produto antes da entrada';
+    productSelect.append(prompt);
+    products.forEach((product) => {
+      const option = document.createElement('option');
+      option.value = product.id_produto;
+      option.textContent = `${product.nome} — saldo ${product.quantidade ?? product.quantidade_estoque ?? 0}`;
+      productSelect.append(option);
+    });
+
+    productsList.replaceChildren();
+    if (!products.length) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell('Nenhum produto cadastrado. Peça ao gerente para cadastrar o produto primeiro.');
+      cell.colSpan = 5;
+      row.append(cell);
+      productsList.append(row);
+      return;
+    }
+    products.forEach((product) => {
+      const row = document.createElement('tr');
+      row.append(makeTableCell(product.nome));
+      row.append(makeTableCell(product.setor));
+      row.append(makeTableCell(product.localizacao));
+      row.append(makeTableCell(product.estado_produto));
+      row.append(makeTableCell(String(product.quantidade ?? product.quantidade_estoque ?? 0)));
+      productsList.append(row);
+    });
+  };
+
+  productSelect.addEventListener('change', () => {
+    const product = products.find((item) => String(item.id_produto) === productSelect.value);
+    if (!product) return;
+    form.elements.setor.value = product.setor || '';
+    form.elements.localizacao.value = product.localizacao || '';
+    form.elements.estado_produto.value = product.estado_produto || 'Novo';
+    form.elements.proxima_revisao.value = product.proxima_revisao
+      ? String(product.proxima_revisao).slice(0, 10)
+      : '';
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showFormMessage(errorBox, '');
+    const payload = Object.fromEntries(new FormData(form).entries());
+    payload.id_produto = Number(payload.id_produto);
+    payload.quantidade = Number(payload.quantidade);
+    payload.tipo = 'entrada';
+    submitButton.disabled = true;
+    submitButton.textContent = 'Registrando...';
+    try {
+      const result = await apiRequest('/estoque/movimentacoes', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      form.reset();
+      entryDate.value = localToday;
+      form.elements.estado_produto.value = 'Novo';
+      showFormMessage(errorBox, result.mensagem || 'Entrada registrada com sucesso.', true);
+      await loadProducts();
+    } catch (error) {
+      showFormMessage(errorBox, error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Registrar entrada';
+    }
+  });
+
+  try {
+    await loadProducts();
+  } catch (error) {
+    showFormMessage(listError, error.message);
+    const row = document.createElement('tr');
+    const cell = makeTableCell(error.message);
+    cell.colSpan = 5;
+    row.append(cell);
+    productsList.replaceChildren(row);
   }
 }
