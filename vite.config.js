@@ -20,6 +20,7 @@ module.exports = {
         path.join(frontend, 'funcionarios.html'),
         path.join(frontend, 'saida-vendas.html'),
         path.join(frontend, 'niveis.html'),
+        path.join(frontend, 'movimentacao.html'),
       ],
     },
   },

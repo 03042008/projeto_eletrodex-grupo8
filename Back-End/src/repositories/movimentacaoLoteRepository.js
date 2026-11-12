@@ -3,7 +3,12 @@ const pool = require("../config/database");
 class MovimentacaoLoteRepository {
   async findAll() {
     const [rows] = await pool.query(
-      "SELECT * FROM movimentacao_lote ORDER BY id_movimentacao DESC"
+      `SELECT m.*, l.nota_fiscal, p.nome AS produto_nome, f.nome AS responsavel_nome
+       FROM movimentacao_lote m
+       JOIN lote l ON l.id_lote = m.id_lote
+       JOIN produto p ON p.id_produto = l.id_produto
+       JOIN funcionario f ON f.id_funcionario = m.responsavel
+       ORDER BY m.data_movimentacao DESC, m.id_movimentacao DESC`
     );
     return rows;
   }

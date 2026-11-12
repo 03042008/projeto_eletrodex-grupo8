@@ -8,6 +8,7 @@ const PAGE_ROLES = {
   critico: ['Gerente', 'Estoquista'],
   devolucoes: ['Gerente', 'Estoquista'],
   funcionarios: ['Administrador'],
+  movimentacao: ['Gerente', 'Estoquista'],
   niveis: ['Administrador'],
   niveis: ['Administrador'],
   lotes: ['Gerente', 'Estoquista'],
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSidebar();
   initProfileEditor();
   initSales();
+  initMovimentacoes();
   initAuthTabs();
   initLoginForm();
   initRegisterForm();
@@ -751,6 +753,78 @@ function makeTableCell(text) {
   const cell = document.createElement('td');
   cell.textContent = text ?? '—';
   return cell;
+}
+
+async function initMovimentacoes() {
+  const list = document.querySelector('[data-movimentacao-list]');
+  if (!list) return;
+
+  const search = document.querySelector('[data-movimentacao-search]');
+  const refreshButton = document.querySelector('[data-movimentacao-refresh]');
+  const errorBox = document.querySelector('[data-movimentacao-error]');
+  let movements = [];
+
+  const render = () => {
+    const query = search?.value.trim().toLocaleLowerCase('pt-BR') || '';
+    const filtered = movements.filter((movement) => [
+      movement.produto_nome,
+      movement.responsavel_nome,
+      movement.id_lote,
+      movement.nota_fiscal,
+      movement.setor,
+      movement.localizacao,
+      movement.estado_produto,
+    ].some((value) => String(value ?? '').toLocaleLowerCase('pt-BR').includes(query)));
+
+    list.replaceChildren();
+    if (!filtered.length) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell(movements.length ? 'Nenhuma movimentação corresponde à busca.' : 'Nenhuma movimentação registrada.');
+      cell.colSpan = 8;
+      row.append(cell);
+      list.append(row);
+      return;
+    }
+
+    filtered.forEach((movement) => {
+      const row = document.createElement('tr');
+      row.append(makeTableCell(`#${movement.id_movimentacao}`));
+      row.append(makeTableCell(movement.data_movimentacao ? new Date(movement.data_movimentacao).toLocaleString('pt-BR') : '—'));
+      row.append(makeTableCell(movement.produto_nome || `Produto #${movement.id_produto || '—'}`));
+      row.append(makeTableCell(`#${movement.id_lote} · NF ${movement.nota_fiscal || '—'}`));
+      row.append(makeTableCell(movement.localizacao));
+      row.append(makeTableCell(movement.setor));
+      row.append(makeTableCell(movement.estado_produto));
+      row.append(makeTableCell(movement.responsavel_nome || `Funcionário #${movement.responsavel}`));
+      list.append(row);
+    });
+  };
+
+  const loadMovements = async () => {
+    if (refreshButton) {
+      refreshButton.disabled = true;
+      refreshButton.textContent = 'Atualizando...';
+    }
+    showFormMessage(errorBox, '');
+    try {
+      const result = await apiRequest('/movimentacao-lote');
+      movements = Array.isArray(result) ? result : (result.dados || []);
+      render();
+    } catch (error) {
+      movements = [];
+      render();
+      showFormMessage(errorBox, error.message);
+    } finally {
+      if (refreshButton) {
+        refreshButton.disabled = false;
+        refreshButton.textContent = 'Atualizar';
+      }
+    }
+  };
+
+  search?.addEventListener('input', render);
+  refreshButton?.addEventListener('click', loadMovements);
+  await loadMovements();
 }
 
 async function initSales() {
