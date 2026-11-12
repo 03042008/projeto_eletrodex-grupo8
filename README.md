@@ -139,6 +139,16 @@ O sistema registra a movimentação dos produtos, armazenando informações como
 
 As movimentações ficam registradas para permitir o acompanhamento do histórico dos produtos.
 
+### Setor do estoquista
+
+O estoquista entra com o e-mail e a senha da conta que o administrador cadastrou e recebeu o cargo **Estoquista**. Na página **Operação do estoque**, pode registrar entradas e saídas, informar setor e localização, atualizar a conservação e consultar o histórico. Saídas acima do saldo disponível são recusadas.
+
+### Gestão do gerente
+
+Gerentes e administradores podem cadastrar, editar e excluir produtos em **Gestão de produtos**, incluindo nome, setor, imagem para download, tamanho, preço, quantidade, modelo, localização e conservação. Para preservar o inventário e o histórico, é preciso zerar o saldo; produtos com lotes ou movimentações associados não podem ser excluídos.
+
+Depois de criar o banco com `Back-End/database.sql` e executar as migrações anteriores, aplique `Back-End/migrations/002_gestao_estoque.sql` tanto em instalações novas quanto em bancos existentes. A migration adiciona os campos de produto e o histórico transacional de entradas e saídas.
+
 ### 📥 Entrada de produtos
 
 Permite registrar:

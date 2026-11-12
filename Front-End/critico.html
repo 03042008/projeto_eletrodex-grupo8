@@ -455,73 +455,22 @@
       </div>
     </div>
 
-    <dialog
-      class="profile-dialog"
-      data-profile-dialog
-      aria-labelledby="profile-dialog-title"
-    >
-      <form data-profile-form novalidate>
-        <div class="profile-dialog-header">
-          <div>
-            <p class="eyebrow">Conta pessoal</p>
-            <h2 id="profile-dialog-title">Editar perfil</h2>
-          </div>
-          <button
-            type="button"
-            class="close-notifications-btn"
-            data-profile-close
-            aria-label="Fechar"
-          >
-            ×
-          </button>
-        </div>
-        <div class="form-error" role="alert" aria-live="polite"></div>
-        <div class="field">
-          <label for="perfil-nome">Nome completo</label
-          ><input
-            id="perfil-nome"
-            name="nome"
-            type="text"
-            maxlength="100"
-            autocomplete="name"
-            required
-          />
-        </div>
-        <div class="field">
-          <label for="perfil-email">E-mail</label
-          ><input
-            id="perfil-email"
-            name="email"
-            type="email"
-            maxlength="100"
-            autocomplete="email"
-            required
-          />
-        </div>
-        <div class="field">
-          <label for="perfil-cpf">CPF</label
-          ><input
-            id="perfil-cpf"
-            name="cpf"
-            type="text"
-            inputmode="numeric"
-            maxlength="14"
-            autocomplete="off"
-            required
-          />
-        </div>
-        <p class="field-hint">
-          O cargo é gerenciado pelo Administrador e não pode ser alterado aqui.
-        </p>
-        <div class="profile-dialog-actions">
-          <button type="button" class="btn-secondary" data-profile-close>
-            Cancelar</button
-          ><button type="submit" class="btn-primary">Salvar perfil</button>
-        </div>
-      </form>
-    </dialog>
+<dialog class="profile-dialog" data-profile-dialog aria-labelledby="profile-dialog-title">
+  <form data-profile-form novalidate>
+    <div class="profile-dialog-header">
+      <div><p class="eyebrow">Conta pessoal</p><h2 id="profile-dialog-title">Editar perfil</h2></div>
+      <button type="button" class="close-notifications-btn" data-profile-close aria-label="Fechar">×</button>
+    </div>
+    <div class="form-error" role="alert" aria-live="polite"></div>
+    <div class="field"><label for="perfil-nome">Nome completo</label><input id="perfil-nome" name="nome" type="text" maxlength="100" autocomplete="name" required></div>
+    <div class="field"><label for="perfil-email">E-mail</label><input id="perfil-email" name="email" type="email" maxlength="100" autocomplete="email" required></div>
+    <div class="field"><label for="perfil-cpf">CPF</label><input id="perfil-cpf" name="cpf" type="text" inputmode="numeric" maxlength="14" autocomplete="off" required></div>
+    <p class="field-hint">O cargo é gerenciado pelo Administrador e não pode ser alterado aqui.</p>
+    <div class="profile-dialog-actions"><button type="button" class="btn-secondary" data-profile-close>Cancelar</button><button type="submit" class="btn-primary">Salvar perfil</button></div>
+  </form>
+</dialog>
 
-    <script src="./src/scripts/config.js"></script>
-    <script src="./src/scripts/app.js"></script>
-  </body>
+<script src="./src/scripts/config.js"></script>
+<script src="./src/scripts/app.js"></script>
+</body>
 </html>

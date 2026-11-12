@@ -16,6 +16,8 @@ const storage = multer.diskStorage({
       subFolder = "pdfFiles";
     } else if (ext === ".jpg" || ext === ".jpeg") {
       subFolder = "jpgFiles";
+    } else if (ext === ".webp") {
+      subFolder = "webpFiles";
     } else {
       subFolder = "otherFiles";
     }
@@ -36,6 +38,23 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const allowedImageTypes = new Map([
+  [".jpg", "image/jpeg"],
+  [".jpeg", "image/jpeg"],
+  [".png", "image/png"],
+  [".webp", "image/webp"],
+]);
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    if (allowedImageTypes.get(extension) !== file.mimetype) {
+      return cb(new Error("Envie uma imagem JPG, PNG ou WEBP."));
+    }
+    return cb(null, true);
+  },
+});
 
 module.exports = upload;

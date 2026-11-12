@@ -89,17 +89,28 @@ class ProdutoController {
     async cadastrarComImagem(req, res) {
         let caminhoImagem = null;
         try {
-            const { nome, descricao, preco, categoria } = req.body;
+            const {
+                nome,
+                descricao,
+                preco,
+                categoria,
+                setor,
+                tamanho,
+                quantidade,
+                modelo,
+                localizacao,
+                estado_produto,
+                proxima_revisao
+            } = req.body;
             const file = req.file;
 
-            // Validar dados obrigatórios
-            if (!nome || !descricao || !preco) {
+            if (!nome || preco === undefined || preco === '') {
                 if (file) {
-                    await fs.unlink(file.path).catch(() => {}); // Deleta o arquivo enviado em caso de erro
+                    await fs.unlink(file.path).catch(() => {});
                 }
                 return res.status(400).json({
                     sucesso: false,
-                    mensagem: "Nome, descrição e preço são obrigatórios"
+                    mensagem: "Nome e preço são obrigatórios"
                 });
             }
 
@@ -113,15 +124,25 @@ class ProdutoController {
 
             const novoProduto = {
                 nome,
-                descricao,
+                descricao: descricao || modelo || nome,
                 preco: parseFloat(preco),
                 categoria: categoria || null,
-                imagem: caminhoImagem
+                imagem: caminhoImagem,
+                setor,
+                tamanho,
+                quantidade: quantidade === undefined ? 0 : Number(quantidade),
+                modelo,
+                localizacao,
+                estado_produto,
+                proxima_revisao: proxima_revisao || null
             };
 
             const resultado = await ProdutoService.cadastrarProduto(novoProduto);
             res.status(201).json(resultado);
         } catch (erro) {
+            if (req.file) {
+                await fs.unlink(req.file.path).catch(() => {});
+            }
             console.error('Erro ao cadastrar produto:', erro);
             const status = erro?.status || 500;
             const mensagem = erro?.mensagem || erro?.message || "Erro ao cadastrar produto";
@@ -147,8 +168,14 @@ class ProdutoController {
                     : `uploads/${relativePath}`;
             }
 
-            if (dadosAtualizacao.preco) {
+            if (dadosAtualizacao.preco !== undefined && dadosAtualizacao.preco !== '') {
                 dadosAtualizacao.preco = parseFloat(dadosAtualizacao.preco);
+            }
+            if (dadosAtualizacao.quantidade !== undefined) {
+                dadosAtualizacao.quantidade = Number(dadosAtualizacao.quantidade);
+            }
+            if (dadosAtualizacao.proxima_revisao === '') {
+                dadosAtualizacao.proxima_revisao = null;
             }
 
             const resultado = await ProdutoService.atualizarProduto(id, dadosAtualizacao);

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eletrodex — Operação do estoque</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles/style.css">
+</head>
+<body data-page="setor-estoquista">
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <div class="sidebar-scrim" data-sidebar-scrim></div>
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Navegação principal">
+      <div class="brand-mark"><span>Eletrodex</span><span class="dot">●</span></div>
+      <p class="nav-group-label">Visão geral</p>
+      <ul class="nav-list">
+        <li><a href="dashboard.html" data-page="painel" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Painel</a></li>
+        <li><a href="produtos.html" data-page="produtos" data-roles="Administrador,Gerente,Estoquista,Vendedor,Funcionário"><span class="tick"></span>Produtos</a></li>
+      </ul>
+      <p class="nav-group-label">Estoque</p>
+      <ul class="nav-list">
+        <li><a href="setor-estoquista.html" data-page="setor-estoquista" data-roles="Administrador,Gerente,Estoquista"><span class="tick"></span>Operação do estoque</a></li>
+        <li><a href="gestao-produtos.html" data-page="gestao-produtos" data-roles="Administrador,Gerente"><span class="tick"></span>Gestão de produtos</a></li>
+      </ul>
+      <div class="sidebar-foot">
+        <div class="avatar">SU</div>
+        <div class="user-info"><div class="user-name">Seu usuário</div><div class="role-badge">Cargo</div></div>
+        <button type="button" class="logout-button" data-logout>Sair</button>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="app-sidebar" aria-label="Abrir menu">☰</button>
+          <div><h1>Operação do estoque</h1><p class="subtitle">Entradas, saídas, organização e conservação dos produtos</p></div>
+        </div>
+      </header>
+      <main class="app-content" id="conteudo">
+        <div class="content-container">
+          <section class="card" aria-labelledby="movement-form-title">
+            <div class="panel-header"><h2 id="movement-form-title">Registrar movimentação</h2></div>
+            <form data-stock-form>
+              <div class="form-error" role="alert" aria-live="polite"></div>
+              <div class="product-form-grid">
+                <div class="field"><label for="movimento-tipo">Operação</label><select id="movimento-tipo" name="tipo" required><option value="entrada">Entrada</option><option value="saida">Saída</option></select></div>
+                <div class="field"><label for="movimento-produto">Produto</label><select id="movimento-produto" name="id_produto" required><option value="">Carregando produtos...</option></select></div>
+                <div class="field"><label for="movimento-quantidade">Quantidade</label><input id="movimento-quantidade" name="quantidade" type="number" min="1" step="1" required></div>
+                <div class="field"><label for="movimento-setor">Setor</label><input id="movimento-setor" name="setor" maxlength="100" required></div>
+                <div class="field"><label for="movimento-localizacao">Localização</label><input id="movimento-localizacao" name="localizacao" maxlength="150" required></div>
+                <div class="field"><label for="movimento-conservacao">Conservação</label><input id="movimento-conservacao" name="estado_produto" maxlength="100" value="Novo" required></div>
+                <div class="field"><label for="movimento-revisao">Próxima revisão</label><input id="movimento-revisao" name="proxima_revisao" type="date"></div>
+                <div class="field field-wide"><label for="movimento-observacao">Observações de conservação</label><textarea id="movimento-observacao" name="observacao" maxlength="500" rows="3"></textarea></div>
+              </div>
+              <button class="btn-primary product-submit" type="submit">Registrar movimentação</button>
+            </form>
+          </section>
+
+          <section class="card" aria-labelledby="stock-list-title">
+            <div class="panel-header"><h2 id="stock-list-title">Saldo atual</h2></div>
+            <p class="form-error" data-stock-list-error role="alert" aria-live="polite"></p>
+            <div class="table-container">
+              <table class="data-table">
+                <thead><tr><th>Produto</th><th>Setor</th><th>Localização</th><th>Conservação</th><th>Quantidade</th></tr></thead>
+                <tbody data-stock-products><tr><td colspan="5">Carregando produtos...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="movement-list-title">
+            <div class="panel-header"><h2 id="movement-list-title">Histórico recente</h2></div>
+            <p class="form-error" data-movement-list-error role="alert" aria-live="polite"></p>
+            <div class="table-container">
+              <table class="data-table">
+                <thead><tr><th>Data</th><th>Operação</th><th>Produto</th><th>Quantidade</th><th>Responsável</th><th>Setor / localização</th><th>Conservação / revisão / observação</th></tr></thead>
+                <tbody data-stock-movements><tr><td colspan="7">Carregando movimentações...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="./src/scripts/app.js"></script>
+</body>
+</html>
