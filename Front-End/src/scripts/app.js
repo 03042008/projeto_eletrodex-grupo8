@@ -7,6 +7,7 @@ const PAGE_ROLES = {
   painel: ['Administrador', 'Gerente'],
   critico: ['Administrador', 'Gerente', 'Estoquista'],
   devolucoes: ['Administrador', 'Gerente', 'Estoquista'],
+  funcionarios: ['Administrador'],
   lotes: ['Administrador', 'Gerente', 'Estoquista'],
   notificacoes: ['Administrador', 'Gerente', 'Estoquista'],
   produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initLogout();
   initNotifications();
   markActiveNav();
+  initFuncionarios();
   initDevolucoes();
   initLotsManager();
   initManagerProducts();
@@ -736,6 +738,192 @@ function makeTableCell(text) {
   const cell = document.createElement('td');
   cell.textContent = text ?? '—';
   return cell;
+}
+
+async function initFuncionarios() {
+  const form = document.querySelector('[data-funcionario-form]');
+  const list = document.querySelector('[data-funcionario-list]');
+  if (!form || !list) return;
+
+  const roleSelect = form.elements.id_nivel;
+  const errorBox = form.querySelector('[data-funcionario-error]');
+  const listError = document.querySelector('[data-funcionario-list-error]');
+  const cancelButton = document.querySelector('[data-funcionario-cancel]');
+  const submitButton = form.querySelector('[type="submit"]');
+  const title = document.querySelector('#funcionario-form-title');
+  const currentUser = JSON.parse(sessionStorage.getItem('eletrodex-user') || '{}');
+
+  const showMessage = (element, message, success = false) => {
+    element.textContent = message;
+    element.classList.toggle('visible', Boolean(message));
+    element.classList.toggle('success', success);
+  };
+
+  const loadRoles = async () => {
+    const result = await apiRequest('/nivel');
+    const roles = Array.isArray(result.dados) ? result.dados : [];
+    roleSelect.replaceChildren();
+    const prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = 'Selecione um cargo';
+    roleSelect.append(prompt);
+    roles.forEach((role) => {
+      const option = document.createElement('option');
+      option.value = role.id_nivel;
+      option.textContent = role.descricao;
+      roleSelect.append(option);
+    });
+  };
+
+  const loadEmployees = async () => {
+    showMessage(listError, '');
+    try {
+      const result = await apiRequest('/funcionarios');
+      const employees = Array.isArray(result.dados) ? result.dados : [];
+      list.replaceChildren();
+      if (!employees.length) {
+        const row = document.createElement('tr');
+        const cell = makeTableCell('Nenhum funcionário cadastrado.');
+        cell.colSpan = 5;
+        row.append(cell);
+        list.append(row);
+        return;
+      }
+
+      employees.forEach((employee) => {
+        const row = document.createElement('tr');
+        row.append(makeTableCell(employee.nome));
+        row.append(makeTableCell(employee.email));
+        row.append(makeTableCell(employee.cpf));
+        row.append(makeTableCell(employee.nivel));
+        const actions = document.createElement('td');
+        const isCurrentUser = Number(employee.id_funcionario) === Number(currentUser.id_funcionario);
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'text-button';
+        editButton.textContent = 'Editar';
+        editButton.addEventListener('click', () => {
+          form.elements.id_funcionario.value = employee.id_funcionario;
+          form.elements.nome.value = employee.nome || '';
+          form.elements.email.value = employee.email || '';
+          form.elements.cpf.value = employee.cpf || '';
+          roleSelect.value = employee.id_nivel;
+          roleSelect.disabled = isCurrentUser;
+          form.elements.senha.value = '';
+          form.elements.senha.required = false;
+          document.querySelector('[data-funcionario-self-hint]').hidden = !isCurrentUser;
+          title.textContent = `Editar funcionário #${employee.id_funcionario}`;
+          submitButton.textContent = 'Salvar alterações';
+          cancelButton.hidden = false;
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'text-button danger-button';
+        deleteButton.textContent = 'Excluir';
+        deleteButton.disabled = isCurrentUser;
+        deleteButton.title = isCurrentUser ? 'Não é permitido excluir a própria conta.' : '';
+        deleteButton.addEventListener('click', async () => {
+          if (!window.confirm(`Excluir o acesso de ${employee.nome}?`)) return;
+          deleteButton.disabled = true;
+          try {
+            const result = await apiRequest(`/funcionarios/${employee.id_funcionario}`, { method: 'DELETE' });
+            showMessage(errorBox, result.mensagem || 'Funcionário excluído.', true);
+            await loadEmployees();
+          } catch (error) {
+            showMessage(listError, error.message);
+            deleteButton.disabled = false;
+          }
+        });
+        actions.append(editButton, deleteButton);
+        row.append(actions);
+        list.append(row);
+      });
+    } catch (error) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell(error.message);
+      cell.colSpan = 5;
+      row.append(cell);
+      list.replaceChildren(row);
+      showMessage(listError, error.message);
+    }
+  };
+
+  const resetForm = () => {
+    form.reset();
+    form.elements.id_funcionario.value = '';
+    roleSelect.disabled = false;
+    form.elements.senha.required = true;
+    document.querySelector('[data-funcionario-self-hint]').hidden = true;
+    title.textContent = 'Cadastrar funcionário';
+    submitButton.textContent = 'Cadastrar funcionário';
+    cancelButton.hidden = true;
+    showMessage(errorBox, '');
+  };
+
+  cancelButton.addEventListener('click', resetForm);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showMessage(errorBox, '');
+    const employeeId = form.elements.id_funcionario.value;
+    const isCurrentUser = Number(employeeId) === Number(currentUser.id_funcionario);
+    const nome = form.elements.nome.value.trim();
+    const email = form.elements.email.value.trim();
+    const cpf = form.elements.cpf.value.trim();
+    const senha = form.elements.senha.value;
+
+    if (!nome || !email || !form.elements.email.validity.valid || !cpfValido(cpf)) {
+      showMessage(errorBox, !cpfValido(cpf) ? 'Informe um CPF válido.' : 'Informe nome e e-mail válido.');
+      return;
+    }
+    if (!employeeId && senha.trim().length < 8) {
+      showMessage(errorBox, 'A senha inicial deve ter ao menos 8 caracteres.');
+      return;
+    }
+    if (senha && (senha.trim().length < 8 || new TextEncoder().encode(senha).length > 72)) {
+      showMessage(errorBox, 'A senha deve ter ao menos 8 caracteres e até 72 bytes.');
+      return;
+    }
+    if (!employeeId && !roleSelect.value) {
+      showMessage(errorBox, 'Selecione o cargo do funcionário.');
+      return;
+    }
+
+    const payload = { nome, email, cpf };
+    if (!isCurrentUser) payload.id_nivel = Number(roleSelect.value);
+    if (senha) payload.senha = senha;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Salvando...';
+    try {
+      const result = await apiRequest(employeeId ? `/funcionarios/${employeeId}` : '/funcionarios', {
+        method: employeeId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload),
+      });
+      if (isCurrentUser) {
+        Object.assign(currentUser, { nome, email, cpf });
+        sessionStorage.setItem('eletrodex-user', JSON.stringify(currentUser));
+        applyRoleAccess(currentUser);
+      }
+      resetForm();
+      showMessage(errorBox, result.mensagem || (employeeId ? 'Funcionário atualizado.' : 'Funcionário cadastrado.'), true);
+      await loadEmployees();
+    } catch (error) {
+      showMessage(errorBox, error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = form.elements.id_funcionario.value ? 'Salvar alterações' : 'Cadastrar funcionário';
+    }
+  });
+
+  try {
+    await loadRoles();
+  } catch (error) {
+    roleSelect.disabled = true;
+    showMessage(errorBox, error.message);
+  }
+  await loadEmployees();
 }
 
 async function initLotsManager() {

@@ -125,7 +125,10 @@ class FuncionarioController {
 
   async deletar(req, res) {
     try {
-      const resultado = await FuncionarioService.deletarFuncionario(req.params.id);
+      const resultado = await FuncionarioService.deletarFuncionario(
+        req.params.id,
+        req.usuario.id_funcionario
+      );
       res.status(200).json(resultado);
     } catch (error) {
       const code = error.status || 400;

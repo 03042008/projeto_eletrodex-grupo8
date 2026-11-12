@@ -17,6 +17,7 @@ module.exports = {
         path.join(frontend, 'notificacoes.html'),
         path.join(frontend, 'lotes.html'),
         path.join(frontend, 'devolucoes.html'),
+        path.join(frontend, 'funcionarios.html'),
       ],
     },
   },

@@ -155,24 +155,26 @@ class FuncionarioService {
     const atualizacao = {};
 
     if (dados.id_nivel !== undefined) {
-      if (Number.isNaN(Number(dados.id_nivel))) {
+      if (!Number.isInteger(Number(dados.id_nivel)) || Number(dados.id_nivel) < 1) {
         throw { status: 400, mensagem: "Campo id_nivel inválido" };
       }
       atualizacao.id_nivel = Number(dados.id_nivel);
     }
 
     if (dados.nome !== undefined) {
-      if (String(dados.nome).trim() === "") {
-        throw { status: 400, mensagem: "Nome não pode ser vazio" };
+      const nome = typeof dados.nome === "string" ? dados.nome.trim() : "";
+      if (!nome || nome.length > 100) {
+        throw { status: 400, mensagem: "Nome é obrigatório e deve ter até 100 caracteres." };
       }
-      atualizacao.nome = String(dados.nome).trim();
+      atualizacao.nome = nome;
     }
 
     if (dados.email !== undefined) {
-      if (String(dados.email).trim() === "") {
-        throw { status: 400, mensagem: "Email não pode ser vazio" };
+      const email = typeof dados.email === "string" ? dados.email.trim().toLowerCase() : "";
+      if (email.length > 100 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw { status: 400, mensagem: "Informe um e-mail válido com até 100 caracteres." };
       }
-      atualizacao.email = String(dados.email).trim();
+      atualizacao.email = email;
     }
 
     if (dados.senha !== undefined) {
@@ -183,17 +185,30 @@ class FuncionarioService {
     }
 
     if (dados.cpf !== undefined) {
-      if (String(dados.cpf).trim() === "") {
-        throw { status: 400, mensagem: "CPF não pode ser vazio" };
-      }
-      atualizacao.cpf = String(dados.cpf).trim();
+      const cpf = normalizarCpf(dados.cpf);
+      if (!cpf) throw { status: 400, mensagem: "Informe um CPF válido." };
+      atualizacao.cpf = cpf;
     }
 
     if (Object.keys(atualizacao).length === 0) {
       throw { status: 400, mensagem: "Nenhum dado válido enviado para atualização" };
     }
 
-    await FuncionarioRepository.update(id, atualizacao);
+    const duplicado = await FuncionarioRepository.findByEmailOrCpfForOtherUser(
+      atualizacao.email ?? existente.email,
+      atualizacao.cpf ?? existente.cpf,
+      Number(id)
+    );
+    if (duplicado) throw { status: 409, mensagem: "E-mail ou CPF já cadastrado." };
+
+    try {
+      await FuncionarioRepository.update(id, atualizacao);
+    } catch (error) {
+      if (error.code === "ER_DUP_ENTRY") {
+        throw { status: 409, mensagem: "E-mail ou CPF já cadastrado." };
+      }
+      throw error;
+    }
 
     return { sucesso: true, mensagem: "Funcionário atualizado com sucesso" };
   }
@@ -256,9 +271,12 @@ class FuncionarioService {
     };
   }
 
-  async deletarFuncionario(id) {
+  async deletarFuncionario(id, actorId) {
     if (!id || Number.isNaN(Number(id))) {
       throw { status: 400, mensagem: "ID inválido" };
+    }
+    if (Number(id) === Number(actorId)) {
+      throw { status: 403, mensagem: "Não é permitido excluir a própria conta." };
     }
 
     const existente = await FuncionarioRepository.findById(id);
