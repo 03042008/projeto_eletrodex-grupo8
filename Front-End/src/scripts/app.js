@@ -6,6 +6,7 @@ const API_BASE_URL = window.ELETRODEX_CONFIG?.apiBaseUrl;
 const PAGE_ROLES = {
   painel: ['Administrador', 'Gerente'],
   critico: ['Administrador', 'Gerente', 'Estoquista'],
+  devolucoes: ['Administrador', 'Gerente', 'Estoquista'],
   lotes: ['Administrador', 'Gerente', 'Estoquista'],
   notificacoes: ['Administrador', 'Gerente', 'Estoquista'],
   produtos: ['Administrador', 'Gerente', 'Estoquista', 'Vendedor', 'Funcionário'],
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initLogout();
   initNotifications();
   markActiveNav();
+  initDevolucoes();
   initLotsManager();
   initManagerProducts();
   initStockOperations();
@@ -920,6 +922,168 @@ async function initLotsManager() {
     showMessage(errorBox, error.message);
   }
   await loadLots();
+}
+
+async function initDevolucoes() {
+  const form = document.querySelector('[data-devolucao-form]');
+  const list = document.querySelector('[data-devolucao-list]');
+  if (!form || !list) return;
+
+  const lotSelect = form.elements.id_lote;
+  const formError = form.querySelector('[data-devolucao-error]');
+  const listError = document.querySelector('[data-devolucao-list-error]');
+  const submitButton = form.querySelector('[type="submit"]');
+  const statusLabels = {
+    pendente: 'Pendente',
+    em_analise: 'Em análise',
+    reintegrada: 'Reintegrada ao estoque',
+    recusada: 'Recusada',
+  };
+
+  const showMessage = (element, message, success = false) => {
+    element.textContent = message;
+    element.classList.toggle('visible', Boolean(message));
+    element.classList.toggle('success', success);
+  };
+
+  const loadLots = async () => {
+    const result = await apiRequest('/lotes');
+    const lots = Array.isArray(result.dados) ? result.dados : [];
+    lotSelect.replaceChildren();
+    const prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = lots.length ? 'Selecione o lote do produto' : 'Nenhum lote disponível';
+    lotSelect.append(prompt);
+    lots.forEach((lot) => {
+      const option = document.createElement('option');
+      option.value = lot.id_lote;
+      option.textContent = `Lote #${lot.id_lote} · ${lot.produto_nome || `Produto #${lot.id_produto}`} · NF ${lot.nota_fiscal}`;
+      lotSelect.append(option);
+    });
+    lotSelect.disabled = lots.length === 0;
+  };
+
+  const updateStatus = async (item, status, button) => {
+    button.disabled = true;
+    try {
+      const result = await apiRequest(`/devolucoes/${item.id_devolucao}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+      showMessage(formError, result.mensagem, true);
+      await Promise.all([loadReturns(), loadLots()]);
+    } catch (error) {
+      showMessage(listError, error.message);
+      button.disabled = false;
+    }
+  };
+
+  const renderReturns = (items) => {
+    list.replaceChildren();
+    if (!items.length) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell('Nenhuma devolução registrada.');
+      cell.colSpan = 9;
+      row.append(cell);
+      list.append(row);
+      return;
+    }
+
+    items.forEach((item) => {
+      const row = document.createElement('tr');
+      row.append(makeTableCell(item.produto_nome));
+      row.append(makeTableCell(`#${item.id_lote} · NF ${item.nota_fiscal}`));
+      row.append(makeTableCell(Number(item.quantidade).toLocaleString('pt-BR')));
+      row.append(makeTableCell(item.motivo));
+      row.append(makeTableCell(item.solicitante_nome));
+      row.append(makeTableCell(item.data_devolucao ? new Date(item.data_devolucao).toLocaleString('pt-BR') : '—'));
+
+      const photoCell = document.createElement('td');
+      const photoLink = document.createElement('a');
+      photoLink.href = `${API_BASE_URL}/${String(item.foto).replace(/^\/+/, '')}`;
+      photoLink.target = '_blank';
+      photoLink.rel = 'noopener noreferrer';
+      photoLink.textContent = 'Ver foto';
+      photoLink.setAttribute('aria-label', `Abrir foto da devolução do produto ${item.produto_nome}`);
+      photoCell.append(photoLink);
+      row.append(photoCell);
+
+      const statusCell = document.createElement('td');
+      const status = document.createElement('span');
+      status.className = `return-status status-${item.status}`;
+      status.textContent = statusLabels[item.status] || item.status;
+      statusCell.append(status);
+      row.append(statusCell);
+
+      const actions = document.createElement('td');
+      actions.className = 'return-actions';
+      const addAction = (label, nextStatus, danger = false) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = danger ? 'text-button danger-button' : 'text-button';
+        button.textContent = label;
+        button.addEventListener('click', () => updateStatus(item, nextStatus, button));
+        actions.append(button);
+      };
+
+      if (item.status === 'pendente') addAction('Iniciar análise', 'em_analise');
+      if (['pendente', 'em_analise'].includes(item.status)) {
+        addAction('Reintegrar', 'reintegrada');
+        addAction('Recusar', 'recusada', true);
+      }
+      if (actions.childElementCount) row.append(actions);
+      else row.append(makeTableCell(item.revisor_nome ? `Analisada por ${item.revisor_nome}` : 'Concluída'));
+      list.append(row);
+    });
+  };
+
+  async function loadReturns() {
+    showMessage(listError, '');
+    try {
+      const result = await apiRequest('/devolucoes');
+      renderReturns(Array.isArray(result.dados) ? result.dados : []);
+    } catch (error) {
+      const row = document.createElement('tr');
+      const cell = makeTableCell(error.message);
+      cell.colSpan = 9;
+      row.append(cell);
+      list.replaceChildren(row);
+      showMessage(listError, error.message);
+    }
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showMessage(formError, '');
+    if (!lotSelect.value || !form.elements.foto.files.length) {
+      showMessage(formError, 'Selecione o lote e anexe uma foto do produto.');
+      return;
+    }
+    submitButton.disabled = true;
+    submitButton.textContent = 'Enviando...';
+    try {
+      const result = await apiRequest('/devolucoes', {
+        method: 'POST',
+        body: new FormData(form),
+      });
+      form.reset();
+      showMessage(formError, result.mensagem || 'Devolução registrada para análise.', true);
+      await Promise.all([loadLots(), loadReturns()]);
+    } catch (error) {
+      showMessage(formError, error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Registrar devolução';
+    }
+  });
+
+  try {
+    await loadLots();
+  } catch (error) {
+    lotSelect.disabled = true;
+    showMessage(formError, error.message);
+  }
+  await loadReturns();
 }
 
 function productImageUrl(imagePath) {

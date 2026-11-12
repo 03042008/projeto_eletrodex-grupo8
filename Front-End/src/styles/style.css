@@ -1387,6 +1387,23 @@ a.kpi-grid:active {
 .notification-center-list .notification-item { cursor: default; }
 .notification-center-list .notification-actions { min-width: 220px; }
 
+.return-status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.return-status.status-pendente { color: var(--color-warning); }
+.return-status.status-em_analise { color: var(--color-primary); }
+.return-status.status-reintegrada { color: var(--color-success); }
+.return-status.status-recusada { color: var(--color-danger); }
+.return-actions { white-space: nowrap; }
+.return-actions .text-button { margin-right: 10px; }
+
 @media (max-width: 640px) {
   .notification-page-controls { align-items: stretch; flex-direction: column; }
   .notification-page-controls select,

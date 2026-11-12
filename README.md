@@ -147,9 +147,9 @@ O estoquista entra com o e-mail e a senha da conta que o administrador cadastrou
 
 Gerentes e administradores podem cadastrar, editar e excluir produtos em **Gestão de produtos**, incluindo nome, setor, imagem para download, tamanho, preço, quantidade, modelo, localização e conservação. Para preservar o inventário e o histórico, é preciso zerar o saldo; produtos com lotes ou movimentações associados não podem ser excluídos.
 
-Depois de criar o banco com `Back-End/database.sql` e executar as migrações anteriores, aplique `Back-End/migrations/002_gestao_estoque.sql` e então `Back-End/migrations/003_ajustes_estoque.sql`, tanto em instalações novas quanto em bancos existentes. As migrações adicionam os campos de produto, o histórico de entradas/saídas e o tipo de ajuste de conservação.
+Depois de criar o banco com `Back-End/database.sql` e executar as migrações anteriores, aplique `Back-End/migrations/002_gestao_estoque.sql`, `Back-End/migrations/003_ajustes_estoque.sql` e `Back-End/migrations/004_devolucoes.sql`, nessa ordem, tanto em instalações novas quanto em bancos existentes. As migrações adicionam os campos de produto, o histórico de entradas/saídas, o tipo de ajuste de conservação e os registros de devolução.
 
-Na página **Entrada de produtos**, o estoquista seleciona um produto já cadastrado pelo gerente e informa quantidade, data, setor, localização e conservação. Em **Operação do estoque**, pode editar a organização e conservação do item ou excluí-lo do estoque, registrando a retirada total como saída e preservando o cadastro e o histórico.
+Em **Operação do estoque**, o estoquista registra entradas e saídas, edita a organização e conservação do item ou o retira do estoque, preservando o cadastro e o histórico. O endereço antigo de **Entrada de produtos** redireciona para esse fluxo.
 
 ### 📥 Entrada de produtos
 
@@ -186,6 +186,8 @@ Para realizar uma devolução, o sistema deve solicitar:
 - ID do produto.
 
 Essas informações são utilizadas para análise da devolução.
+
+Devoluções ficam pendentes até um funcionário iniciar a análise. A equipe pode reintegrar a quantidade aprovada ao lote ou recusar a solicitação; cada decisão fica registrada com o funcionário revisor.
 
 ### 💳 Pagamentos
 
